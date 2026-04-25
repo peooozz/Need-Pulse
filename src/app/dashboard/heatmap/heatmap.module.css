@@ -21,6 +21,12 @@
   flex: 1; position: relative; background: var(--bg-surface);
   border: 1px solid var(--border-subtle); border-radius: var(--radius-lg);
   overflow: hidden;
+  transform: perspective(1200px) rotateX(12deg);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7), 0 0 30px rgba(99, 102, 241, 0.15);
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.mapContainer:hover {
+  transform: perspective(1200px) rotateX(4deg);
 }
 
 .mapBg {

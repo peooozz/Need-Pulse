@@ -18,13 +18,15 @@
 }
 .statsCard {
   display: flex; align-items: center; gap: var(--space-md);
-  padding: var(--space-lg); background: var(--bg-surface);
-  border: 1px solid var(--border-subtle); border-radius: var(--radius-lg);
-  transition: all var(--duration-normal) var(--ease-out);
+  padding: var(--space-lg); background: rgba(17, 24, 39, 0.65);
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.05); border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-lg); box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 .statsCard:hover {
-  border-color: var(--border-default); transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
+  border-color: rgba(255, 255, 255, 0.15); transform: translateY(-4px) scale(1.01);
+  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.6), 0 0 20px rgba(99, 102, 241, 0.1);
 }
 .statsCardIcon {
   width: 44px; height: 44px; border-radius: var(--radius-md);
@@ -52,8 +54,15 @@
 
 /* Feed Section */
 .feedSection {
-  background: var(--bg-surface); border: 1px solid var(--border-subtle);
+  background: rgba(17, 24, 39, 0.65); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.05); border-top: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
   border-radius: var(--radius-lg); overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.feedSection:hover {
+  border-color: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.6), 0 0 20px rgba(99, 102, 241, 0.1);
 }
 .sectionHeader {
   display: flex; align-items: center; justify-content: space-between;
@@ -102,8 +111,16 @@
 .rightColumn { display: flex; flex-direction: column; gap: var(--space-md); }
 
 .breakdownCard, .assignmentsCard, .categoryCard {
-  background: var(--bg-surface); border: 1px solid var(--border-subtle);
+  background: rgba(17, 24, 39, 0.65); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.05); border-top: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
   border-radius: var(--radius-lg); padding: var(--space-lg);
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.breakdownCard:hover, .assignmentsCard:hover, .categoryCard:hover {
+  border-color: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.6), 0 0 20px rgba(99, 102, 241, 0.1);
+  transform: translateY(-2px) scale(1.01);
 }
 .breakdownCard h3, .assignmentsCard h3, .categoryCard h3 {
   font-size: var(--text-sm); font-weight: 700; margin-bottom: var(--space-md);
