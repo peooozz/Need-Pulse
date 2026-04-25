@@ -5,6 +5,12 @@ import { MOCK_NEEDS } from '@/lib/mock-data';
 import { CATEGORY_CONFIG, URGENCY_CONFIG } from '@/lib/types';
 import type { Need, NeedCategory } from '@/lib/types';
 import styles from './heatmap.module.css';
+import dynamic from 'next/dynamic';
+
+const LeafletMap = dynamic(() => import('@/components/map/LeafletMap'), {
+  ssr: false,
+  loading: () => <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', background: '#09090b', borderRadius: '1rem', color: 'var(--text-muted)'}}>Loading map...</div>
+});
 
 function timeAgo(dateStr: string): string {
   const s = Math.floor((Date.now() - new Date(dateStr).getTime()) / 1000);
@@ -13,32 +19,7 @@ function timeAgo(dateStr: string): string {
   return `${Math.floor(s / 3600)}h ago`;
 }
 
-/* Map dot component positioned by lat/lng */
-function MapDot({ need, onClick, selected }: { need: Need; onClick: () => void; selected: boolean }) {
-  const cat = CATEGORY_CONFIG[need.category];
-  /* Map India coordinates roughly: lat 8-37 → 5%-95%, lng 68-97 → 5%-95% */
-  const top = 95 - ((need.location.lat - 8) / 29) * 90;
-  const left = ((need.location.lng - 68) / 29) * 90 + 5;
-
-  return (
-    <button
-      className={`${styles.mapDot} ${selected ? styles.mapDotSelected : ''}`}
-      style={{ top: `${top}%`, left: `${left}%` }}
-      onClick={onClick}
-    >
-      <span
-        className={styles.mapDotInner}
-        style={{
-          background: cat.color,
-          width: `${Math.max(12, need.urgency * 2.5)}px`,
-          height: `${Math.max(12, need.urgency * 2.5)}px`,
-          boxShadow: `0 0 ${need.urgency * 2}px ${cat.color}60`,
-        }}
-      />
-      {need.urgency >= 8 && <span className={styles.mapDotRing} style={{ borderColor: cat.color }} />}
-    </button>
-  );
-}
+// Removed MapDot as we are using Leaflet now
 
 export default function HeatmapPage() {
   const [filterCategory, setFilterCategory] = useState<NeedCategory | 'all'>('all');
@@ -76,28 +57,12 @@ export default function HeatmapPage() {
 
       <div className={styles.mapLayout}>
         {/* Interactive Map */}
-        <div className={styles.mapContainer}>
-          {/* India outline map (CSS-based) */}
-          <div className={styles.mapBg}>
-            <div className={styles.mapGridH} />
-            <div className={styles.mapGridV} />
-            <div className={styles.mapLabel} style={{ top: '15%', left: '35%' }}>Delhi</div>
-            <div className={styles.mapLabel} style={{ top: '42%', left: '65%' }}>Hyderabad</div>
-            <div className={styles.mapLabel} style={{ top: '30%', left: '50%' }}>Mumbai</div>
-            <div className={styles.mapLabel} style={{ top: '55%', left: '55%' }}>Bangalore</div>
-            <div className={styles.mapLabel} style={{ top: '55%', left: '70%' }}>Chennai</div>
-            <div className={styles.mapLabel} style={{ top: '25%', left: '70%' }}>Jaipur</div>
-
-            {/* Need dots */}
-            {filtered.map((need) => (
-              <MapDot
-                key={need.id}
-                need={need}
-                selected={selectedNeed?.id === need.id}
-                onClick={() => setSelectedNeed(selectedNeed?.id === need.id ? null : need)}
-              />
-            ))}
-          </div>
+        <div className={styles.mapContainer} style={{ background: 'transparent' }}>
+          <LeafletMap 
+            needs={filtered} 
+            selectedNeedId={selectedNeed?.id || null} 
+            onNeedClick={(need) => setSelectedNeed(selectedNeed?.id === need.id ? null : need)} 
+          />
 
           {/* Legend */}
           <div className={styles.legend}>
@@ -108,10 +73,6 @@ export default function HeatmapPage() {
               <div className={styles.legendItem}><span className={styles.legendDot} style={{ background: '#f59e0b' }} /> Moderate (4-5)</div>
               <div className={styles.legendItem}><span className={styles.legendDot} style={{ background: '#10b981' }} /> Low (1-3)</div>
             </div>
-          </div>
-
-          <div className={styles.mapNote}>
-            💡 Connect Google Maps API key for full interactive map with deck.gl heatmap
           </div>
         </div>
 
