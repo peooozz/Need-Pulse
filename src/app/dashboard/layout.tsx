@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
+import { useAuth } from '@/components/AuthContext';
 import styles from './dashboard.module.css';
 
 const NAV_ITEMS = [
@@ -15,7 +16,48 @@ const NAV_ITEMS = [
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const router = useRouter();
+  const { user, loading, logout } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  /* --- Route protection: redirect to login if not authenticated --- */
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push('/login');
+    }
+  }, [user, loading, router]);
+
+  /* Show nothing while checking auth state */
+  if (loading || !user) {
+    return (
+      <div style={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: '#0a0e1a',
+        color: '#f9fafb',
+        fontFamily: 'Inter, system-ui, sans-serif',
+      }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ fontSize: '32px', marginBottom: '12px', animation: 'float 2s ease-in-out infinite' }}>⚡</div>
+          <p style={{ color: '#9ca3af', fontSize: '14px' }}>Loading NeedPulse...</p>
+        </div>
+      </div>
+    );
+  }
+
+  const initials = user.name
+    .split(' ')
+    .map(w => w[0])
+    .join('')
+    .toUpperCase()
+    .slice(0, 2);
+
+  async function handleLogout() {
+    await logout();
+    router.push('/login');
+  }
 
   return (
     <div className={styles.dashboardLayout}>
@@ -55,10 +97,19 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </nav>
 
         <div className={styles.sidebarFooter}>
-          <div className={styles.statusIndicator}>
-            <span className={styles.statusDot} />
-            <span>System Online</span>
+          {/* User info */}
+          <div className={styles.userSection}>
+            <div className={styles.userAvatar}>{initials}</div>
+            <div className={styles.userInfo}>
+              <span className={styles.userName}>{user.name}</span>
+              <span className={styles.userRole}>{user.role === 'admin' ? '🛡️ Admin' : '🤝 Volunteer'}</span>
+            </div>
           </div>
+          <button className={styles.logoutBtn} onClick={handleLogout} title="Sign out">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+            </svg>
+          </button>
         </div>
       </aside>
 
@@ -77,7 +128,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
               <span className={styles.notifDot} />
             </button>
-            <div className={styles.avatar}>NP</div>
+            <div className={styles.avatar}>{initials}</div>
           </div>
         </header>
         <div className={styles.pageContent}>

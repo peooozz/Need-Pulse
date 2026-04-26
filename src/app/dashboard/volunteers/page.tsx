@@ -22,9 +22,10 @@ function VolunteerCard({ vol }: { vol: Volunteer }) {
   return (
     <div className={styles.card}>
       <div className={styles.cardHeader}>
-        <div className={styles.avatar}>{vol.name.split(' ').map(w => w[0]).join('')}</div>
+        <div className={styles.avatar}>{vol.name.split(' ').map(w => w[0]).join('').slice(0, 2)}</div>
         <div className={styles.cardInfo}>
           <h3 className={styles.cardName}>{vol.name}</h3>
+          {vol.organization && <p className={styles.cardOrg}>{vol.organization}</p>}
           <p className={styles.cardLocation}>📍 {vol.locationName}</p>
         </div>
         <span className={`badge ${avail.cls}`}>
