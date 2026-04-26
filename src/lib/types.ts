@@ -1,5 +1,14 @@
 /* NeedPulse — TypeScript Types */
 
+export type UserRole = 'admin' | 'volunteer';
+
+export interface AppUser {
+  uid: string;
+  email: string;
+  name: string;
+  role: UserRole;
+}
+
 export type NeedCategory = 'food' | 'water' | 'shelter' | 'medical' | 'education' | 'infrastructure' | 'other';
 export type Sentiment = 'desperate' | 'urgent' | 'moderate' | 'informational';
 export type NeedStatus = 'new' | 'assigned' | 'in_progress' | 'resolved';
@@ -36,6 +45,7 @@ export interface Volunteer {
   name: string;
   phone: string;
   email: string;
+  organization?: string;
   skills: VolunteerSkill[];
   availability: VolunteerAvailability;
   location: GeoPoint;
