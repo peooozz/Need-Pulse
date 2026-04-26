@@ -196,3 +196,34 @@ export function subscribeToVolunteers(
     return null;
   }
 }
+
+/** Create a new need */
+export async function createNeed(needData: Partial<Need>): Promise<string | null> {
+  if (!db) return null;
+  try {
+    const docRef = await addDoc(collection(db, COLLECTIONS.needs), {
+      ...needData,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    });
+    return docRef.id;
+  } catch (error) {
+    console.error('Error creating need:', error);
+    return null;
+  }
+}
+
+/** Create a new assignment */
+export async function createAssignment(assignmentData: any): Promise<string | null> {
+  if (!db) return null;
+  try {
+    const docRef = await addDoc(collection(db, 'assignments'), {
+      ...assignmentData,
+      createdAt: new Date().toISOString()
+    });
+    return docRef.id;
+  } catch (error) {
+    console.error('Error creating assignment:', error);
+    return null;
+  }
+}
