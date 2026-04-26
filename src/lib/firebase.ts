@@ -1,8 +1,3 @@
-/* ============================================
-   NeedPulse — Firebase Client Initialization
-   Graceful fallback when keys are not configured
-   ============================================ */
-
 import { initializeApp, getApps, FirebaseApp } from 'firebase/app';
 import {
   getFirestore,
@@ -18,6 +13,10 @@ import {
   Timestamp,
   Firestore,
 } from 'firebase/firestore';
+import {
+  getAuth,
+  Auth,
+} from 'firebase/auth';
 import type { Need, Volunteer, Assignment } from './types';
 
 /* ---------- Firebase Config ---------- */
@@ -43,22 +42,25 @@ export function isFirebaseConfigured(): boolean {
 /* ---------- Initialize Firebase (only if configured) ---------- */
 let app: FirebaseApp | null = null;
 let db: Firestore | null = null;
+let auth: Auth | null = null;
 
 if (isFirebaseConfigured()) {
   try {
     app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
     db = getFirestore(app);
-    console.log('✅ Firebase initialized successfully');
+    auth = getAuth(app);
+    console.log('✅ Firebase initialized successfully (Firestore + Auth)');
   } catch (error) {
     console.warn('⚠️ Firebase initialization failed:', error);
     app = null;
     db = null;
+    auth = null;
   }
 } else {
   console.log('ℹ️ Firebase not configured — using mock data fallback');
 }
 
-export { app, db };
+export { app, db, auth };
 
 /* ---------- Collection References ---------- */
 const COLLECTIONS = {
