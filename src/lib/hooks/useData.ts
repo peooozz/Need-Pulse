@@ -80,7 +80,7 @@ export function useStats() {
 
     const totalNeeds = needs.length;
     const activeVolunteers = volunteers.filter(v => v.availability === 'available').length;
-    const resolvedToday = needs.filter(n => n.status === 'completed').length;
+    const resolvedToday = needs.filter(n => n.status === 'resolved').length;
     
     // Average response time mock logic (could be derived from DB timestamps in a full impl)
     const avgResponseMinutes = 12;

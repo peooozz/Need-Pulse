@@ -155,7 +155,21 @@ export default function VolunteersPage() {
     });
 
     return list;
-  }, [filter, searchQuery, sortBy]);
+  }, [volunteers, filter, searchQuery, sortBy]);
+
+  if (loading) {
+    return (
+      <div className={styles.volPage}>
+        <div className={styles.pageHeader}>
+          <div>
+            <h1 className={styles.pageTitle}>Volunteer Network</h1>
+            <p className={styles.pageSubtitle}>Loading live data...</p>
+          </div>
+        </div>
+        <div className="skeleton" style={{ height: '400px', borderRadius: '12px' }} />
+      </div>
+    );
+  }
 
   return (
     <div className={styles.volPage}>
@@ -163,11 +177,11 @@ export default function VolunteersPage() {
         <div>
           <h1 className={styles.pageTitle}>Volunteer Network</h1>
           <p className={styles.pageSubtitle}>
-            {MOCK_VOLUNTEERS.length} organizations registered · {MOCK_VOLUNTEERS.filter(v => v.availability === 'available').length} available now
+            {volunteers.length} organizations registered · {volunteers.filter(v => v.availability === 'available').length} available now
           </p>
         </div>
         <span className="result-count">
-          Showing {vols.length} of {MOCK_VOLUNTEERS.length}
+          Showing {vols.length} of {volunteers.length}
         </span>
       </div>
 
@@ -192,7 +206,7 @@ export default function VolunteersPage() {
       {/* Quick Stats */}
       <div className={styles.quickStats}>
         {(['all', 'available', 'busy', 'offline'] as const).map((f) => {
-          const count = f === 'all' ? MOCK_VOLUNTEERS.length : MOCK_VOLUNTEERS.filter(v => v.availability === f).length;
+          const count = f === 'all' ? volunteers.length : volunteers.filter(v => v.availability === f).length;
           const label = f === 'all' ? 'All' : AVAILABILITY_CONFIG[f].label;
           return (
             <button
