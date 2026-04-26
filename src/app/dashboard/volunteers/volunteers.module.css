@@ -62,6 +62,7 @@
 }
 .cardInfo { flex: 1; min-width: 0; }
 .cardName { font-size: var(--text-base); font-weight: 700; }
+.cardOrg { font-size: var(--text-xs); color: var(--accent-primary-hover); font-weight: 500; margin-top: 1px; }
 .cardLocation { font-size: var(--text-xs); color: var(--text-tertiary); margin-top: 2px; }
 .availDot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; }
 
