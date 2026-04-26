@@ -20,7 +20,7 @@ export default function LeafletMap({ needs, selectedNeedId, onNeedClick }: Leafl
     <MapContainer 
       center={center} 
       zoom={zoom} 
-      style={{ height: '100%', width: '100%', borderRadius: '1rem', background: '#09090b' }}
+      style={{ height: '100%', width: '100%', borderRadius: '1rem', background: 'var(--bg-primary)' }}
       zoomControl={false}
     >
       <TileLayer

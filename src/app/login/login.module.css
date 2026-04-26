@@ -17,7 +17,7 @@
   left: -10%;
   width: 600px;
   height: 600px;
-  background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(255, 77, 109, 0.12) 0%, transparent 70%);
   animation: ambient-drift 20s ease-in-out infinite;
   pointer-events: none;
 }
@@ -28,7 +28,7 @@
   right: -10%;
   width: 500px;
   height: 500px;
-  background: radial-gradient(circle, rgba(139, 92, 246, 0.12) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(255, 179, 193, 0.1) 0%, transparent 70%);
   animation: ambient-drift 25s ease-in-out infinite reverse;
   pointer-events: none;
 }
@@ -70,19 +70,19 @@
   width: 56px;
   height: 56px;
   border-radius: var(--radius-lg);
-  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  background: linear-gradient(135deg, #ff4d6d, #ff8fa3);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 24px;
   margin: 0 auto var(--space-md);
-  box-shadow: 0 0 24px rgba(99, 102, 241, 0.3);
+  box-shadow: 0 0 24px rgba(255, 77, 109, 0.3);
 }
 
 .brandName {
   font-size: var(--text-2xl);
   font-weight: 800;
-  background: linear-gradient(135deg, #e0e7ff, #c7d2fe);
+  background: linear-gradient(135deg, #590d22, #ff4d6d);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -130,7 +130,7 @@
 
 .formInput:focus {
   border-color: var(--accent-primary);
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+  box-shadow: 0 0 0 3px rgba(255, 77, 109, 0.1);
   background: rgba(255, 255, 255, 0.06);
 }
 
@@ -166,10 +166,10 @@
 }
 
 .roleBtnActive {
-  background: rgba(103, 80, 164, 0.25);
-  border-color: rgba(207, 188, 255, 0.3);
-  color: var(--accent-primary-hover);
-  box-shadow: 0 0 16px rgba(103, 80, 164, 0.15);
+  background: rgba(255, 77, 109, 0.15);
+  border-color: rgba(255, 77, 109, 0.3);
+  color: var(--accent-primary);
+  box-shadow: 0 0 16px rgba(255, 77, 109, 0.1);
 }
 
 .submitBtn {
@@ -191,7 +191,7 @@
 
 .submitBtn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(99, 102, 241, 0.3);
+  box-shadow: 0 8px 24px rgba(255, 77, 109, 0.3);
 }
 
 .submitBtn:active {
@@ -210,7 +210,7 @@
   border-radius: var(--radius-md);
   padding: 10px 14px;
   margin-bottom: var(--space-md);
-  color: #fca5a5;
+  color: #e63946;
   font-size: var(--text-sm);
   text-align: center;
   animation: float-up 0.3s ease both;
@@ -231,7 +231,7 @@
 }
 
 .switchLink a:hover {
-  color: #c7d2fe;
+  color: #590d22;
   text-decoration: underline;
 }
 
@@ -240,8 +240,8 @@
   margin-top: var(--space-md);
   padding: 8px 12px;
   border-radius: var(--radius-sm);
-  background: rgba(99, 102, 241, 0.08);
-  border: 1px solid rgba(99, 102, 241, 0.15);
+  background: rgba(255, 77, 109, 0.05);
+  border: 1px solid rgba(255, 77, 109, 0.1);
   font-size: var(--text-xs);
   color: var(--text-tertiary);
 }

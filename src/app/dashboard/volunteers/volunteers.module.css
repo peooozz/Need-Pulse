@@ -26,13 +26,14 @@
 }
 .filterBtn:hover {
   border-color: var(--glass-z1-border-top); color: var(--text-primary);
-  box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+  box-shadow: 0 4px 12px rgba(89, 13, 34, 0.08);
   transform: translateY(-2px);
 }
 .filterBtnActive {
-  background: rgba(103, 80, 164, 0.25); border-color: rgba(207, 188, 255, 0.3);
-  color: var(--accent-primary-hover);
-  box-shadow: 0 0 16px rgba(103, 80, 164, 0.15);
+  background: rgba(255, 77, 109, 0.15);
+  border-color: rgba(255, 77, 109, 0.3);
+  color: var(--accent-primary);
+  box-shadow: 0 0 16px rgba(255, 77, 109, 0.1);
 }
 .filterCount {
   font-family: var(--font-mono); font-size: var(--text-xs); font-weight: 700;
@@ -61,16 +62,16 @@
 }
 .cardExpanded {
   background: var(--glass-z2-bg) !important;
-  border-color: rgba(207, 188, 255, 0.2) !important;
+  border-color: rgba(255, 77, 109, 0.2) !important;
 }
 
 .cardHeader { display: flex; align-items: center; gap: 12px; cursor: pointer; }
 .avatar {
   width: 44px; height: 44px; border-radius: var(--radius-full);
-  background: linear-gradient(135deg, var(--accent-primary), #7c3aed);
+  background: linear-gradient(135deg, var(--accent-primary), #ff758f);
   display: flex; align-items: center; justify-content: center;
   font-size: var(--text-xs); font-weight: 700; color: white; flex-shrink: 0;
-  box-shadow: 0 0 16px rgba(139, 92, 246, 0.3);
+  box-shadow: 0 4px 12px rgba(255, 77, 109, 0.2);
 }
 .cardInfo { flex: 1; min-width: 0; }
 .cardName { font-size: var(--text-base); font-weight: 700; }

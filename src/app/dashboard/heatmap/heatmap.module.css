@@ -25,26 +25,26 @@
   border-radius: var(--radius-lg);
   overflow: hidden;
   transform: perspective(1200px) rotateX(12deg);
-  box-shadow: var(--glass-z2-shadow), 0 0 40px rgba(99, 102, 241, 0.1);
+  box-shadow: var(--glass-z2-shadow), 0 0 40px rgba(255, 77, 109, 0.05);
   transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.5s ease;
 }
 .mapContainer:hover {
   transform: perspective(1200px) rotateX(4deg);
-  box-shadow: var(--glass-z3-shadow), 0 0 60px rgba(99, 102, 241, 0.15);
+  box-shadow: var(--glass-z3-shadow), 0 0 60px rgba(255, 77, 109, 0.1);
 }
 
 .mapBg {
   position: absolute; inset: 0;
-  background: radial-gradient(ellipse at 50% 45%, rgba(99, 102, 241, 0.04) 0%, transparent 60%);
+  background: radial-gradient(ellipse at 50% 45%, rgba(255, 77, 109, 0.08) 0%, transparent 60%);
 }
 
 .mapGridH {
   position: absolute; inset: 0;
-  background-image: repeating-linear-gradient(0deg, transparent, transparent 59px, rgba(255,255,255,0.03) 59px, rgba(255,255,255,0.03) 60px);
+  background-image: repeating-linear-gradient(0deg, transparent, transparent 59px, rgba(255, 77, 109, 0.03) 59px, rgba(255, 77, 109, 0.03) 60px);
 }
 .mapGridV {
   position: absolute; inset: 0;
-  background-image: repeating-linear-gradient(90deg, transparent, transparent 59px, rgba(255,255,255,0.03) 59px, rgba(255,255,255,0.03) 60px);
+  background-image: repeating-linear-gradient(90deg, transparent, transparent 59px, rgba(255, 77, 109, 0.03) 59px, rgba(255, 77, 109, 0.03) 60px);
 }
 
 .mapLabel {
