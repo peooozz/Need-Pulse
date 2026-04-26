@@ -166,3 +166,18 @@ export function subscribeToNeeds(callback: (needs: Need[]) => void): (() => void
     return null;
   }
 }
+
+/** Subscribe to real-time volunteer updates */
+export function subscribeToVolunteers(callback: (volunteers: Volunteer[]) => void): (() => void) | null {
+  if (!db) return null;
+  try {
+    const q = query(collection(db, COLLECTIONS.volunteers));
+    return onSnapshot(q, (snapshot) => {
+      const vols = snapshot.docs.map(d => ({ id: d.id, ...d.data() } as Volunteer));
+      callback(vols);
+    });
+  } catch (error) {
+    console.error('Error subscribing to volunteers:', error);
+    return null;
+  }
+}
