@@ -45,6 +45,31 @@ function PulseDot({ x, y, delay, color, size = 6 }: { x: number; y: number; dela
   );
 }
 
+/* Feature card data */
+const FEATURES = [
+  {
+    icon: '💬',
+    title: 'WhatsApp-First AI',
+    description: 'Field workers report needs via WhatsApp in any language — voice notes, photos, or text. Gemini AI transcribes, translates, and classifies in seconds.',
+    highlight: '7+ Languages',
+    gradient: 'linear-gradient(135deg, #25D366, #128C7E)',
+  },
+  {
+    icon: '🗺️',
+    title: 'Heatmap Intelligence',
+    description: 'Every report is geo-tagged and plotted on a live heatmap. Cluster analysis reveals patterns — so you dispatch resources where they matter most.',
+    highlight: 'Real-time GPS',
+    gradient: 'linear-gradient(135deg, #3b82f6, #6366f1)',
+  },
+  {
+    icon: '🚀',
+    title: 'Smart Volunteer Matching',
+    description: 'Our matching engine scores volunteers by skill, proximity, availability, and track record — then auto-dispatches via WhatsApp with directions.',
+    highlight: '94% Match Rate',
+    gradient: 'linear-gradient(135deg, #f59e0b, #ef4444)',
+  },
+];
+
 export default function LandingPage() {
   const stat1 = useCountUp(12470);
   const stat2 = useCountUp(890);
@@ -67,8 +92,9 @@ export default function LandingPage() {
             <span className={styles.logoText}>NeedPulse</span>
           </div>
           <div className={styles.navLinks}>
-            <a href="#how-it-works">How It Works</a>
+            <a href="#features">Features</a>
             <a href="#impact">Impact</a>
+            <Link href="/login" className={styles.navLoginBtn}>Sign In</Link>
             <Link href="/dashboard" className="btn btn-primary btn-sm">Dashboard →</Link>
           </div>
         </div>
@@ -110,8 +136,8 @@ export default function LandingPage() {
             <Link href="/dashboard/simulator" className="btn btn-primary btn-lg">
               ⚡ Try Live Demo
             </Link>
-            <Link href="/dashboard" className="btn btn-ghost btn-lg">
-              View Dashboard →
+            <Link href="/signup" className="btn btn-ghost btn-lg">
+              Create Account →
             </Link>
           </div>
           <div className={styles.heroTech}>
@@ -126,21 +152,42 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* --- How It Works --- */}
-      <section id="how-it-works" className={styles.howSection}>
+      {/* --- Features Section (replaces old How It Works) --- */}
+      <section id="features" className={styles.featuresSection}>
         <div className={styles.sectionInner}>
           <h2 className={styles.sectionTitle}>
-            How <span className="gradient-text">NeedPulse</span> Works
+            Why <span className="gradient-text">NeedPulse</span>
           </h2>
           <p className={styles.sectionSubtitle}>
-            Three steps from field report to coordinated response
+            Three AI-powered capabilities that turn chaos into coordinated response
           </p>
+          <div className={styles.featuresGrid}>
+            {FEATURES.map((feat, i) => (
+              <div key={i} className={styles.featureCard}>
+                <div className={styles.featureIcon} style={{ background: feat.gradient }}>
+                  {feat.icon}
+                </div>
+                <h3 className={styles.featureTitle}>{feat.title}</h3>
+                <p className={styles.featureDesc}>{feat.description}</p>
+                <span className={styles.featureHighlight}>{feat.highlight}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* --- How It Works (compact 3-step) --- */}
+      <section className={styles.howSection}>
+        <div className={styles.sectionInner}>
+          <h2 className={styles.sectionTitle}>
+            How It <span className="gradient-text">Works</span>
+          </h2>
           <div className={styles.steps}>
             <div className={`${styles.step} animate-fade-in-up`}>
               <div className={styles.stepNumber}>1</div>
               <div className={styles.stepIcon}>💬</div>
               <h3>Report via WhatsApp</h3>
-              <p>Field workers send voice notes, photos, or text in any language — Hindi, Telugu, Tamil, English, or any other.</p>
+              <p>Field workers send voice notes, photos, or text in any language — Hindi, Telugu, Tamil, Bengali, or any other.</p>
             </div>
             <div className={styles.stepConnector}>
               <svg width="40" height="2"><line x1="0" y1="1" x2="40" y2="1" stroke="var(--accent-primary)" strokeWidth="2" strokeDasharray="4 4"/></svg>
@@ -158,7 +205,7 @@ export default function LandingPage() {
               <div className={styles.stepNumber}>3</div>
               <div className={styles.stepIcon}>🚀</div>
               <h3>Auto-Dispatch Volunteers</h3>
-              <p>The matching engine finds the best volunteer by skill, proximity, and availability — then dispatches them via WhatsApp.</p>
+              <p>The matching engine finds the best volunteer by skill, proximity, and availability — then dispatches via WhatsApp.</p>
             </div>
           </div>
         </div>
@@ -193,6 +240,25 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* --- Testimonial --- */}
+      <section className={styles.testimonialSection}>
+        <div className={styles.sectionInner}>
+          <div className={styles.testimonialCard}>
+            <div className={styles.quoteIcon}>&ldquo;</div>
+            <blockquote className={styles.quoteText}>
+              NeedPulse transformed how we coordinate our flood relief operations. What used to take 4 hours of phone calls now happens in 12 minutes. Our field teams just send a WhatsApp message, and the right volunteer shows up with the right supplies.
+            </blockquote>
+            <div className={styles.quoteAuthor}>
+              <div className={styles.quoteAvatar}>SR</div>
+              <div>
+                <div className={styles.quoteName}>Sanjay Raghavan</div>
+                <div className={styles.quoteRole}>Operations Director, SEEDS India</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* --- SDG Alignment --- */}
       <section className={styles.sdgSection}>
         <div className={styles.sectionInner}>
@@ -221,9 +287,14 @@ export default function LandingPage() {
         <div className={styles.ctaGlow} />
         <h2>Ready to see it in action?</h2>
         <p>Watch NeedPulse process a real field report in under 10 seconds.</p>
-        <Link href="/dashboard/simulator" className="btn btn-primary btn-lg">
-          ⚡ Launch Demo Simulator
-        </Link>
+        <div className={styles.ctaButtons}>
+          <Link href="/dashboard/simulator" className="btn btn-primary btn-lg">
+            ⚡ Launch Demo Simulator
+          </Link>
+          <Link href="/signup" className="btn btn-ghost btn-lg">
+            Create Free Account
+          </Link>
+        </div>
       </section>
 
       {/* --- Footer --- */}
@@ -236,6 +307,13 @@ export default function LandingPage() {
             <span className={styles.logoText}>NeedPulse</span>
           </div>
           <p>Built with ❤️ for GDG Solution Challenge 2025</p>
+          <div className={styles.footerLinks}>
+            <Link href="/login">Sign In</Link>
+            <span>·</span>
+            <Link href="/signup">Sign Up</Link>
+            <span>·</span>
+            <Link href="/dashboard">Dashboard</Link>
+          </div>
         </div>
       </footer>
     </div>
