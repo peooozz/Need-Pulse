@@ -212,6 +212,111 @@ input, textarea, select {
   outline: none;
 }
 
+/* --- Styled Select Dropdowns --- */
+select.glass-select,
+.glass-select {
+  appearance: none;
+  -webkit-appearance: none;
+  padding: 10px 36px 10px 14px;
+  border-radius: var(--radius-md);
+  background: var(--glass-z1-bg);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid var(--glass-z1-border);
+  color: var(--text-primary);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%23948e9c' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  min-width: 140px;
+}
+select.glass-select:hover,
+.glass-select:hover {
+  border-color: var(--glass-z1-border-top);
+  background-color: rgba(255, 255, 255, 0.04);
+}
+select.glass-select:focus,
+.glass-select:focus {
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 3px rgba(207, 188, 255, 0.12);
+  outline: none;
+}
+select.glass-select option {
+  background: #1e1b25;
+  color: var(--text-primary);
+  padding: 8px;
+}
+
+/* --- Styled Search Input --- */
+.glass-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.glass-search svg {
+  position: absolute;
+  left: 14px;
+  color: var(--text-tertiary);
+  pointer-events: none;
+  flex-shrink: 0;
+}
+.glass-search input {
+  width: 100%;
+  padding: 10px 14px 10px 40px;
+  border-radius: var(--radius-md);
+  background: var(--glass-z1-bg);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid var(--glass-z1-border);
+  color: var(--text-primary);
+  font-size: var(--text-sm);
+  transition: all 0.3s ease;
+}
+.glass-search input::placeholder {
+  color: var(--text-tertiary);
+}
+.glass-search input:focus {
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 3px rgba(207, 188, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+/* --- Result Count Badge --- */
+.result-count {
+  font-size: var(--text-xs);
+  color: var(--text-tertiary);
+  font-weight: 500;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border-subtle);
+}
+
+/* --- Empty State --- */
+.empty-state {
+  text-align: center;
+  padding: var(--space-2xl) var(--space-lg);
+  color: var(--text-tertiary);
+}
+.empty-state-icon {
+  font-size: 48px;
+  margin-bottom: var(--space-md);
+  opacity: 0.5;
+}
+.empty-state h3 {
+  font-size: var(--text-lg);
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+.empty-state p {
+  font-size: var(--text-sm);
+  max-width: 400px;
+  margin: 0 auto;
+}
+
 img {
   max-width: 100%;
   display: block;

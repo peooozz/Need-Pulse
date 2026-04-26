@@ -1,23 +1,67 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { MOCK_NEEDS, MOCK_STATS, MOCK_ASSIGNMENTS, MOCK_VOLUNTEERS } from '@/lib/mock-data';
 import { CATEGORY_CONFIG, URGENCY_CONFIG } from '@/lib/types';
 import type { Need } from '@/lib/types';
+import { useAuth } from '@/components/AuthContext';
 import styles from './overview.module.css';
 
-function timeAgo(dateStr: string): string {
-  const seconds = Math.floor((Date.now() - new Date(dateStr).getTime()) / 1000);
-  if (seconds < 60) return `${seconds}s ago`;
-  if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
-  if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
-  return `${Math.floor(seconds / 86400)}d ago`;
+/* --- Live clock hook --- */
+function useLiveClock() {
+  const [now, setNow] = useState(new Date());
+  useEffect(() => {
+    const id = setInterval(() => setNow(new Date()), 1000);
+    return () => clearInterval(id);
+  }, []);
+  return now;
 }
 
-function StatsCard({ icon, label, value, trend, color }: { icon: string; label: string; value: string; trend?: string; color: string }) {
+/* --- Animated counter hook --- */
+function useCountUp(end: number, duration: number = 1200) {
+  const [count, setCount] = useState(0);
+  const started = useRef(false);
+
+  useEffect(() => {
+    if (started.current) return;
+    started.current = true;
+    const startTime = Date.now();
+    const tick = () => {
+      const elapsed = Date.now() - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setCount(Math.floor(eased * end));
+      if (progress < 1) requestAnimationFrame(tick);
+    };
+    tick();
+  }, [end, duration]);
+  return count;
+}
+
+/* --- Live relative time --- */
+function useLiveTimeAgo(dateStr: string) {
+  const [display, setDisplay] = useState('');
+  const compute = useCallback(() => {
+    const s = Math.floor((Date.now() - new Date(dateStr).getTime()) / 1000);
+    if (s < 60) return `${s}s ago`;
+    if (s < 3600) return `${Math.floor(s / 60)}m ago`;
+    if (s < 86400) return `${Math.floor(s / 3600)}h ago`;
+    return `${Math.floor(s / 86400)}d ago`;
+  }, [dateStr]);
+
+  useEffect(() => {
+    setDisplay(compute());
+    const id = setInterval(() => setDisplay(compute()), 15000);
+    return () => clearInterval(id);
+  }, [compute]);
+
+  return display;
+}
+
+function StatsCard({ icon, label, value, trend, color, delay }: { icon: string; label: string; value: string; trend?: string; color: string; delay: number }) {
   return (
-    <div className={styles.statsCard}>
+    <div className={styles.statsCard} style={{ animationDelay: `${delay}ms` }}>
       <div className={styles.statsCardIcon} style={{ background: `${color}15`, color }}>{icon}</div>
       <div className={styles.statsCardContent}>
         <div className={styles.statsCardValue}>{value}</div>
@@ -31,6 +75,7 @@ function StatsCard({ icon, label, value, trend, color }: { icon: string; label: 
 function NeedFeedItem({ need }: { need: Need }) {
   const cat = CATEGORY_CONFIG[need.category];
   const urgencyClass = URGENCY_CONFIG.getCssClass(need.urgency);
+  const timeAgo = useLiveTimeAgo(need.createdAt);
   return (
     <div className={styles.feedItem}>
       <div className={styles.feedItemLeft}>
@@ -39,7 +84,7 @@ function NeedFeedItem({ need }: { need: Need }) {
           <div className={styles.feedItemTitle}>{need.translatedMessage}</div>
           <div className={styles.feedItemMeta}>
             <span className={`cat-badge ${cat.cssClass}`}>{cat.emoji} {cat.label}</span>
-            <span className={styles.feedItemTime}>{timeAgo(need.createdAt)}</span>
+            <span className={styles.feedItemTime}>{timeAgo}</span>
             <span className={styles.feedItemLoc}>📍 {need.locationName}</span>
           </div>
         </div>
@@ -53,7 +98,15 @@ function NeedFeedItem({ need }: { need: Need }) {
   );
 }
 
+function getGreeting(hour: number): string {
+  if (hour < 12) return 'Good morning';
+  if (hour < 17) return 'Good afternoon';
+  return 'Good evening';
+}
+
 export default function DashboardOverview() {
+  const { user } = useAuth();
+  const clock = useLiveClock();
   const [needs, setNeeds] = useState<Need[]>([]);
 
   useEffect(() => {
@@ -63,12 +116,26 @@ export default function DashboardOverview() {
   const stats = MOCK_STATS;
   const recentAssignments = MOCK_ASSIGNMENTS.slice(0, 3);
 
+  /* Animated counters */
+  const totalNeeds = useCountUp(stats.totalNeeds);
+  const activeVols = useCountUp(stats.activeVolunteers, 800);
+  const resolvedToday = useCountUp(stats.resolvedToday, 600);
+  const avgResponse = useCountUp(stats.avgResponseMinutes, 500);
+
+  const greeting = getGreeting(clock.getHours());
+  const clockStr = clock.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true, timeZone: 'Asia/Kolkata' });
+  const dateStr = clock.toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', timeZone: 'Asia/Kolkata' });
+
   return (
     <div className={styles.overview}>
       <div className={styles.pageHeader}>
         <div>
-          <h1 className={styles.pageTitle}>Dashboard</h1>
-          <p className={styles.pageSubtitle}>Real-time community intelligence overview</p>
+          <h1 className={styles.pageTitle}>
+            {greeting}, {user?.name || 'Operator'} 👋
+          </h1>
+          <p className={styles.pageSubtitle}>
+            {dateStr} · <span className={styles.liveClock}>{clockStr} IST</span>
+          </p>
         </div>
         <Link href="/dashboard/simulator" className="btn btn-primary">
           ⚡ Open Simulator
@@ -77,10 +144,10 @@ export default function DashboardOverview() {
 
       {/* Stats Cards */}
       <div className={styles.statsGrid}>
-        <StatsCard icon="📊" label="Total Needs" value={stats.totalNeeds.toLocaleString()} trend="↑ 12%" color="#6366f1" />
-        <StatsCard icon="🤝" label="Active Volunteers" value={stats.activeVolunteers.toString()} trend="↑ 5%" color="#10b981" />
-        <StatsCard icon="✅" label="Resolved Today" value={stats.resolvedToday.toString()} trend="↑ 23%" color="#f59e0b" />
-        <StatsCard icon="⚡" label="Avg Response" value={`${stats.avgResponseMinutes} min`} trend="↓ 3min" color="#3b82f6" />
+        <StatsCard icon="📊" label="Total Needs" value={totalNeeds.toLocaleString()} trend="↑ 12%" color="#6366f1" delay={0} />
+        <StatsCard icon="🤝" label="Active Volunteers" value={activeVols.toString()} trend="↑ 5%" color="#10b981" delay={80} />
+        <StatsCard icon="✅" label="Resolved Today" value={resolvedToday.toString()} trend="↑ 23%" color="#f59e0b" delay={160} />
+        <StatsCard icon="⚡" label="Avg Response" value={`${avgResponse} min`} trend="↓ 3min" color="#3b82f6" delay={240} />
       </div>
 
       <div className={styles.mainGrid}>
@@ -93,12 +160,12 @@ export default function DashboardOverview() {
             </span>
           </div>
           <div className={styles.feedList}>
-            {needs.map((need) => (
+            {needs.slice(0, 8).map((need) => (
               <NeedFeedItem key={need.id} need={need} />
             ))}
           </div>
           <Link href="/dashboard/needs" className={styles.viewAllLink}>
-            View all needs →
+            View all {needs.length} reports →
           </Link>
         </div>
 

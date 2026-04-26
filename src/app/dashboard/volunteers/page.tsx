@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { MOCK_VOLUNTEERS } from '@/lib/mock-data';
+import { useState, useMemo, useCallback } from 'react';
+import { MOCK_VOLUNTEERS, MOCK_ASSIGNMENTS } from '@/lib/mock-data';
 import type { Volunteer, VolunteerAvailability } from '@/lib/types';
 import styles from './volunteers.module.css';
 
@@ -17,11 +17,23 @@ const SKILL_COLORS: Record<string, string> = {
   sanitation: '#06b6d4', counseling: '#8b5cf6',
 };
 
-function VolunteerCard({ vol }: { vol: Volunteer }) {
+type SortKey = 'rating' | 'completed' | 'name';
+
+function VolunteerCard({ vol, isExpanded, onToggle }: { vol: Volunteer; isExpanded: boolean; onToggle: () => void }) {
   const avail = AVAILABILITY_CONFIG[vol.availability];
+  const recentDispatches = MOCK_ASSIGNMENTS.filter(a => a.volunteerId === vol.id);
+  const [copied, setCopied] = useState('');
+
+  const copyToClipboard = useCallback((text: string, label: string) => {
+    navigator.clipboard.writeText(text).then(() => {
+      setCopied(label);
+      setTimeout(() => setCopied(''), 2000);
+    });
+  }, []);
+
   return (
-    <div className={styles.card}>
-      <div className={styles.cardHeader}>
+    <div className={`${styles.card} ${isExpanded ? styles.cardExpanded : ''}`}>
+      <div className={styles.cardHeader} onClick={onToggle} role="button" tabIndex={0}>
         <div className={styles.avatar}>{vol.name.split(' ').map(w => w[0]).join('').slice(0, 2)}</div>
         <div className={styles.cardInfo}>
           <h3 className={styles.cardName}>{vol.name}</h3>
@@ -61,27 +73,118 @@ function VolunteerCard({ vol }: { vol: Volunteer }) {
         </div>
       </div>
 
-      <div className={styles.cardFooter}>
-        <span className={styles.contact}>📧 {vol.email}</span>
-        <span className={styles.contact}>📱 {vol.phone}</span>
-      </div>
+      {/* Expanded details */}
+      {isExpanded && (
+        <div className={styles.expandedSection}>
+          {/* Contact Actions */}
+          <div className={styles.contactActions}>
+            <button
+              className={styles.actionBtn}
+              onClick={(e) => { e.stopPropagation(); copyToClipboard(vol.email, 'email'); }}
+              title="Copy email"
+            >
+              📧 {copied === 'email' ? 'Copied!' : vol.email}
+            </button>
+            <button
+              className={styles.actionBtn}
+              onClick={(e) => { e.stopPropagation(); copyToClipboard(vol.phone, 'phone'); }}
+              title="Copy phone"
+            >
+              📞 {copied === 'phone' ? 'Copied!' : vol.phone}
+            </button>
+          </div>
+
+          {/* Recent Dispatches */}
+          {recentDispatches.length > 0 && (
+            <div className={styles.dispatches}>
+              <span className={styles.dispatchLabel}>Recent Dispatches</span>
+              {recentDispatches.map(d => (
+                <div key={d.id} className={styles.dispatchItem}>
+                  <span className={`badge ${d.status === 'completed' ? 'badge-success' : d.status === 'in_progress' ? 'badge-warning' : 'badge-info'}`}>
+                    {d.status.replace('_', ' ')}
+                  </span>
+                  <span className={styles.dispatchReason}>{d.matchReason}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Footer — minimal view */}
+      {!isExpanded && (
+        <div className={styles.cardFooter}>
+          <span className={styles.contact}>📧 {vol.email}</span>
+          <button className={styles.expandHint} onClick={onToggle}>Details ↓</button>
+        </div>
+      )}
     </div>
   );
 }
 
 export default function VolunteersPage() {
   const [filter, setFilter] = useState<VolunteerAvailability | 'all'>('all');
-  const vols = filter === 'all' ? MOCK_VOLUNTEERS : MOCK_VOLUNTEERS.filter(v => v.availability === filter);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [sortBy, setSortBy] = useState<SortKey>('rating');
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+
+  const vols = useMemo(() => {
+    let list = [...MOCK_VOLUNTEERS];
+
+    /* Search */
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      list = list.filter(v =>
+        v.name.toLowerCase().includes(q) ||
+        v.locationName.toLowerCase().includes(q) ||
+        (v.organization && v.organization.toLowerCase().includes(q)) ||
+        v.skills.some(s => s.toLowerCase().includes(q))
+      );
+    }
+
+    /* Filter */
+    if (filter !== 'all') list = list.filter(v => v.availability === filter);
+
+    /* Sort */
+    list.sort((a, b) => {
+      if (sortBy === 'rating') return b.rating - a.rating;
+      if (sortBy === 'completed') return b.totalCompleted - a.totalCompleted;
+      return a.name.localeCompare(b.name);
+    });
+
+    return list;
+  }, [filter, searchQuery, sortBy]);
 
   return (
     <div className={styles.volPage}>
       <div className={styles.pageHeader}>
         <div>
-          <h1 className={styles.pageTitle}>Volunteer Management</h1>
+          <h1 className={styles.pageTitle}>Volunteer Network</h1>
           <p className={styles.pageSubtitle}>
-            {MOCK_VOLUNTEERS.length} registered · {MOCK_VOLUNTEERS.filter(v => v.availability === 'available').length} available now
+            {MOCK_VOLUNTEERS.length} organizations registered · {MOCK_VOLUNTEERS.filter(v => v.availability === 'available').length} available now
           </p>
         </div>
+        <span className="result-count">
+          Showing {vols.length} of {MOCK_VOLUNTEERS.length}
+        </span>
+      </div>
+
+      {/* Search + Sort */}
+      <div className={styles.toolsBar}>
+        <div className={`glass-search ${styles.searchWrap}`}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input
+            type="text"
+            placeholder="Search by name, location, skill..."
+            value={searchQuery}
+            onChange={e => setSearchQuery(e.target.value)}
+          />
+        </div>
+        <select className="glass-select" value={sortBy} onChange={e => setSortBy(e.target.value as SortKey)}>
+          <option value="rating">Sort: Highest Rated</option>
+          <option value="completed">Sort: Most Missions</option>
+          <option value="name">Sort: Name A→Z</option>
+        </select>
       </div>
 
       {/* Quick Stats */}
@@ -101,12 +204,25 @@ export default function VolunteersPage() {
         })}
       </div>
 
-      {/* Grid */}
-      <div className={styles.grid}>
-        {vols.map((vol) => (
-          <VolunteerCard key={vol.id} vol={vol} />
-        ))}
-      </div>
+      {/* Grid or Empty State */}
+      {vols.length === 0 ? (
+        <div className="empty-state">
+          <div className="empty-state-icon">🔍</div>
+          <h3>No organizations found</h3>
+          <p>Try adjusting your search or filter criteria.</p>
+        </div>
+      ) : (
+        <div className={styles.grid}>
+          {vols.map((vol) => (
+            <VolunteerCard
+              key={vol.id}
+              vol={vol}
+              isExpanded={expandedId === vol.id}
+              onToggle={() => setExpandedId(expandedId === vol.id ? null : vol.id)}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 }
