@@ -1,9 +1,10 @@
 'use client';
 
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { DEMO_SCENARIOS, MOCK_VOLUNTEERS } from '@/lib/mock-data';
+import { MOCK_VOLUNTEERS, DEMO_SCENARIOS } from '@/lib/mock-data';
 import { CATEGORY_CONFIG, URGENCY_CONFIG } from '@/lib/types';
 import { matchVolunteers, type VolunteerMatch } from '@/lib/matching-engine';
+import { createNeed } from '@/lib/firebase';
 import type { ChatMessage, GeminiExtraction, ProcessingStep, DemoScenario } from '@/lib/types';
 import type { ProcessResponse } from '@/app/api/process/route';
 import styles from './simulator.module.css';
@@ -353,6 +354,29 @@ export default function SimulatorPage() {
     setCurrentMatches(matches);
     await new Promise(r => setTimeout(r, 600));
     setShowMatch(true);
+
+    // Save to Firebase Database
+    if (wasRealAI) {
+      const needToSave = {
+        rawMessage: message,
+        rawLanguage: extraction.detectedLanguage,
+        translatedMessage: extraction.summaryEn,
+        category: extraction.category,
+        subcategory: extraction.subcategory,
+        urgency: extraction.urgency,
+        sentiment: extraction.sentiment,
+        peopleAffected: extraction.peopleAffected,
+        location: scenario?.location || { lat: 20.5937, lng: 78.9629 },
+        locationName: extraction.location || 'Unknown Location',
+        mediaUrls: [],
+        reporterPhone: '+91****0000',
+        reporterName: 'Field Worker',
+        status: (matches.length > 0 ? 'assigned' : 'new') as any,
+        assignedVolunteerId: matches.length > 0 ? matches[0].volunteer.id : null,
+        aiConfidence: extraction.confidence,
+      };
+      await createNeed(needToSave);
+    }
 
     // Add system confirmation reply
     const cat = CATEGORY_CONFIG[extraction.category];
