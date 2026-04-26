@@ -2,9 +2,10 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
-import { MOCK_NEEDS, MOCK_STATS, MOCK_ASSIGNMENTS, MOCK_VOLUNTEERS } from '@/lib/mock-data';
+import { MOCK_ASSIGNMENTS, MOCK_VOLUNTEERS, MOCK_NEEDS } from '@/lib/mock-data';
 import { CATEGORY_CONFIG, URGENCY_CONFIG } from '@/lib/types';
 import type { Need } from '@/lib/types';
+import { useNeeds, useStats, useVolunteers } from '@/lib/hooks/useData';
 import { useAuth } from '@/components/AuthContext';
 import styles from './overview.module.css';
 
@@ -107,13 +108,10 @@ function getGreeting(hour: number): string {
 export default function DashboardOverview() {
   const { user } = useAuth();
   const clock = useLiveClock();
-  const [needs, setNeeds] = useState<Need[]>([]);
+  const { needs, loading: needsLoading } = useNeeds();
+  const { volunteers, loading: volsLoading } = useVolunteers();
+  const { stats, loading: statsLoading } = useStats();
 
-  useEffect(() => {
-    setNeeds(MOCK_NEEDS);
-  }, []);
-
-  const stats = MOCK_STATS;
   const recentAssignments = MOCK_ASSIGNMENTS.slice(0, 3);
 
   /* Animated counters */
@@ -203,8 +201,8 @@ export default function DashboardOverview() {
             <h3>Recent Dispatches</h3>
             <div className={styles.assignmentsList}>
               {recentAssignments.map((a) => {
-                const vol = MOCK_VOLUNTEERS.find(v => v.id === a.volunteerId);
-                const need = MOCK_NEEDS.find(n => n.id === a.needId);
+                const vol = volunteers.find(v => v.id === a.volunteerId) || MOCK_VOLUNTEERS.find(v => v.id === a.volunteerId);
+                const need = needs.find(n => n.id === a.needId) || MOCK_NEEDS.find(n => n.id === a.needId);
                 if (!vol || !need) return null;
                 return (
                   <div key={a.id} className={styles.assignmentItem}>

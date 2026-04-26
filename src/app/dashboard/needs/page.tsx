@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { MOCK_NEEDS } from '@/lib/mock-data';
+import { useNeeds } from '@/lib/hooks/useData';
 import { CATEGORY_CONFIG, URGENCY_CONFIG } from '@/lib/types';
 import type { Need, NeedCategory, NeedStatus } from '@/lib/types';
 import styles from './needs.module.css';
@@ -27,9 +27,10 @@ export default function NeedsPage() {
   const [sortBy, setSortBy] = useState<'urgency' | 'time'>('urgency');
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const { needs, loading } = useNeeds();
 
   const filtered = useMemo(() => {
-    let list = [...MOCK_NEEDS];
+    let list = [...needs];
 
     /* Search across translated message, original message, location, reporter */
     if (searchQuery.trim()) {
@@ -46,19 +47,33 @@ export default function NeedsPage() {
     if (filterStatus !== 'all') list = list.filter(n => n.status === filterStatus);
     list.sort((a, b) => sortBy === 'urgency' ? b.urgency - a.urgency : new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
     return list;
-  }, [filterCategory, filterStatus, sortBy, searchQuery]);
+  }, [needs, filterCategory, filterStatus, sortBy, searchQuery]);
 
-  const unassignedCount = MOCK_NEEDS.filter(n => n.status === 'new').length;
+  const unassignedCount = needs.filter(n => n.status === 'new').length;
+
+  if (loading) {
+    return (
+      <div className={styles.needsPage}>
+        <div className={styles.pageHeader}>
+          <div>
+            <h1 className={styles.pageTitle}>Needs Management</h1>
+            <p className={styles.pageSubtitle}>Loading live data...</p>
+          </div>
+        </div>
+        <div className="skeleton" style={{ height: '400px', borderRadius: '12px' }} />
+      </div>
+    );
+  }
 
   return (
     <div className={styles.needsPage}>
       <div className={styles.pageHeader}>
         <div>
           <h1 className={styles.pageTitle}>Needs Management</h1>
-          <p className={styles.pageSubtitle}>{MOCK_NEEDS.length} total reports · {unassignedCount} unassigned</p>
+          <p className={styles.pageSubtitle}>{needs.length} total reports · {unassignedCount} unassigned</p>
         </div>
         <span className="result-count">
-          Showing {filtered.length} of {MOCK_NEEDS.length}
+          Showing {filtered.length} of {needs.length}
         </span>
       </div>
 
