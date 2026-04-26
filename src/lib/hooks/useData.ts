@@ -21,6 +21,10 @@ export function useNeeds() {
     const unsubscribe = subscribeToNeeds((data) => {
       setNeeds(data);
       setLoading(false);
+    }, (err) => {
+      console.warn('Falling back to mock needs data due to subscription error:', err);
+      setNeeds(MOCK_NEEDS);
+      setLoading(false);
     });
 
     if (!unsubscribe) {
@@ -51,6 +55,10 @@ export function useVolunteers() {
 
     const unsubscribe = subscribeToVolunteers((data) => {
       setVolunteers(data);
+      setLoading(false);
+    }, (err) => {
+      console.warn('Falling back to mock volunteer data due to subscription error:', err);
+      setVolunteers(MOCK_VOLUNTEERS);
       setLoading(false);
     });
 

@@ -153,31 +153,45 @@ export async function getAvailableVolunteers(): Promise<Volunteer[]> {
 }
 
 /** Subscribe to real-time need updates */
-export function subscribeToNeeds(callback: (needs: Need[]) => void): (() => void) | null {
+export function subscribeToNeeds(
+  callback: (needs: Need[]) => void,
+  onError?: (error: Error) => void
+): (() => void) | null {
   if (!db) return null;
   try {
     const q = query(collection(db, COLLECTIONS.needs), orderBy('createdAt', 'desc'));
     return onSnapshot(q, (snapshot) => {
       const needs = snapshot.docs.map(d => ({ id: d.id, ...d.data() } as Need));
       callback(needs);
+    }, (error) => {
+      console.error('Needs snapshot error:', error);
+      if (onError) onError(error);
     });
   } catch (error) {
     console.error('Error subscribing to needs:', error);
+    if (onError && error instanceof Error) onError(error);
     return null;
   }
 }
 
 /** Subscribe to real-time volunteer updates */
-export function subscribeToVolunteers(callback: (volunteers: Volunteer[]) => void): (() => void) | null {
+export function subscribeToVolunteers(
+  callback: (volunteers: Volunteer[]) => void,
+  onError?: (error: Error) => void
+): (() => void) | null {
   if (!db) return null;
   try {
     const q = query(collection(db, COLLECTIONS.volunteers));
     return onSnapshot(q, (snapshot) => {
       const vols = snapshot.docs.map(d => ({ id: d.id, ...d.data() } as Volunteer));
       callback(vols);
+    }, (error) => {
+      console.error('Volunteers snapshot error:', error);
+      if (onError) onError(error);
     });
   } catch (error) {
     console.error('Error subscribing to volunteers:', error);
+    if (onError && error instanceof Error) onError(error);
     return null;
   }
 }
