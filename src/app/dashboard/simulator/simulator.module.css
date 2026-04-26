@@ -47,7 +47,9 @@
 /* Chat Pane */
 .chatPane {
   display: flex; flex-direction: column; border-radius: var(--radius-lg); overflow: hidden;
-  border: 1px solid var(--border-subtle); background: var(--wa-dark-deeper);
+  border: 1px solid var(--glass-z1-border-top);
+  background: var(--wa-dark-deeper);
+  box-shadow: var(--glass-z2-shadow);
 }
 .waHeader {
   display: flex; align-items: center; gap: 12px; padding: 10px 16px;
@@ -132,8 +134,11 @@
 .aiEmpty {
   flex: 1; display: flex; flex-direction: column; align-items: center;
   justify-content: center; text-align: center; gap: var(--space-md);
-  background: var(--bg-surface); border: 1px solid var(--border-subtle);
+  background: var(--glass-z1-bg);
+  backdrop-filter: blur(var(--glass-z1-blur)); -webkit-backdrop-filter: blur(var(--glass-z1-blur));
+  border: 1px solid var(--glass-z1-border); border-top: 1px solid var(--glass-z1-border-top);
   border-radius: var(--radius-lg); padding: var(--space-2xl);
+  box-shadow: var(--glass-z1-shadow);
 }
 .aiEmptyIcon { font-size: 48px; animation: float 4s ease-in-out infinite; }
 .aiEmpty h3 { font-size: var(--text-lg); font-weight: 700; }
@@ -141,8 +146,12 @@
 
 /* Processing Panel */
 .processingPanel {
-  background: var(--bg-surface); border: 1px solid var(--border-subtle);
+  background: var(--glass-z2-bg);
+  backdrop-filter: blur(var(--glass-z2-blur)); -webkit-backdrop-filter: blur(var(--glass-z2-blur));
+  border: 1px solid var(--glass-z2-border); border-top: 1px solid var(--glass-z2-border-top);
   border-radius: var(--radius-lg); overflow: hidden;
+  box-shadow: var(--glass-z2-shadow);
+  animation: float-up 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 .processingHeader {
   display: flex; align-items: center; gap: 10px; padding: var(--space-md) var(--space-lg);
@@ -233,10 +242,12 @@
 
 /* Match Panel */
 .matchPanel {
-  background: var(--bg-surface); border: 1px solid var(--accent-success);
+  background: var(--glass-z3-bg);
+  backdrop-filter: blur(var(--glass-z3-blur)); -webkit-backdrop-filter: blur(var(--glass-z3-blur));
+  border: 1px solid var(--accent-success);
   border-radius: var(--radius-lg); padding: var(--space-lg);
   animation: fade-in-scale 0.5s var(--ease-bounce);
-  box-shadow: 0 0 20px var(--accent-success-glow);
+  box-shadow: var(--glass-z3-shadow), 0 0 30px var(--accent-success-glow);
 }
 .matchHeader {
   display: flex; align-items: center; gap: 8px; margin-bottom: var(--space-md);

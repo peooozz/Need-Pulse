@@ -15,14 +15,26 @@
   position: fixed;
   left: 0;
   top: 0;
-  background: rgba(17, 24, 39, 0.45);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--glass-z3-bg);
+  backdrop-filter: blur(var(--glass-z3-blur));
+  -webkit-backdrop-filter: blur(var(--glass-z3-blur));
+  border-right: 1px solid var(--glass-z3-border);
   display: flex;
   flex-direction: column;
   z-index: var(--z-sticky);
   transition: transform var(--duration-normal) var(--ease-out);
+  overflow: hidden;
+}
+
+.sidebar::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 1px;
+  height: 100%;
+  background: linear-gradient(180deg, rgba(207, 188, 255, 0.2) 0%, transparent 30%, transparent 70%, rgba(99, 102, 241, 0.15) 100%);
+  pointer-events: none;
 }
 
 .sidebarHeader {
@@ -95,12 +107,14 @@
 }
 
 .navItemActive {
-  background: var(--accent-primary-subtle);
+  background: rgba(103, 80, 164, 0.25);
   color: var(--accent-primary-hover);
+  box-shadow: inset 0 0 20px rgba(103, 80, 164, 0.1);
+  border: 1px solid rgba(207, 188, 255, 0.12);
 }
 
 .navItemActive .navIcon {
-  filter: drop-shadow(0 0 6px var(--accent-primary-glow));
+  filter: drop-shadow(0 0 8px var(--accent-primary-glow));
 }
 
 .navItemHighlight {
@@ -155,13 +169,25 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(10, 14, 26, 0.45);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
+  border-bottom: 1px solid var(--glass-z2-border);
+  background: var(--glass-z2-bg);
+  backdrop-filter: blur(var(--glass-z2-blur));
+  -webkit-backdrop-filter: blur(var(--glass-z2-blur));
   position: sticky;
   top: 0;
   z-index: var(--z-sticky);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3), 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.topBar::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.2), rgba(139, 92, 246, 0.15), transparent);
+  pointer-events: none;
 }
 
 .menuBtn {

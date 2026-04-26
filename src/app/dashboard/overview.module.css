@@ -18,15 +18,32 @@
 }
 .statsCard {
   display: flex; align-items: center; gap: var(--space-md);
-  padding: var(--space-md); background: rgba(17, 24, 39, 0.65);
-  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.05); border-top: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: var(--radius-lg); box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
-  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  padding: var(--space-md);
+  background: var(--glass-z1-bg);
+  backdrop-filter: blur(var(--glass-z1-blur)); -webkit-backdrop-filter: blur(var(--glass-z1-blur));
+  border: 1px solid var(--glass-z1-border); border-top: 1px solid var(--glass-z1-border-top);
+  border-radius: var(--radius-lg); box-shadow: var(--glass-z1-shadow);
+  transition: all 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  animation: float-up 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+  position: relative;
+  overflow: hidden;
 }
+.statsCard::before {
+  content: ''; position: absolute; top: 0; left: -30%; width: 30%; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+  animation: glass-refract 6s ease-in-out infinite;
+  pointer-events: none;
+}
+.statsCard:nth-child(1) { animation-delay: 0ms; }
+.statsCard:nth-child(2) { animation-delay: 80ms; }
+.statsCard:nth-child(3) { animation-delay: 160ms; }
+.statsCard:nth-child(4) { animation-delay: 240ms; }
 .statsCard:hover {
-  border-color: rgba(255, 255, 255, 0.15); transform: translateY(-4px) scale(1.01);
-  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.6), 0 0 20px rgba(99, 102, 241, 0.1);
+  background: var(--glass-z2-bg);
+  backdrop-filter: blur(var(--glass-z2-blur)); -webkit-backdrop-filter: blur(var(--glass-z2-blur));
+  border-color: var(--glass-z2-border); border-top-color: var(--glass-z2-border-top);
+  box-shadow: var(--glass-z2-shadow), var(--glass-hover-glow);
+  transform: translateY(var(--glass-hover-lift)) scale(var(--glass-hover-scale));
 }
 .statsCardIcon {
   width: 44px; height: 44px; border-radius: var(--radius-md);
@@ -54,15 +71,16 @@
 
 /* Feed Section */
 .feedSection {
-  background: rgba(17, 24, 39, 0.65); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.05); border-top: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+  background: var(--glass-z2-bg); backdrop-filter: blur(var(--glass-z2-blur)); -webkit-backdrop-filter: blur(var(--glass-z2-blur));
+  border: 1px solid var(--glass-z2-border); border-top: 1px solid var(--glass-z2-border-top);
+  box-shadow: var(--glass-z2-shadow);
   border-radius: var(--radius-lg); overflow: hidden;
-  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transition: all 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  animation: float-up 0.5s cubic-bezier(0.22, 1, 0.36, 1) 0.2s both;
 }
 .feedSection:hover {
-  border-color: rgba(255, 255, 255, 0.15);
-  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.6), 0 0 20px rgba(99, 102, 241, 0.1);
+  border-color: var(--glass-z2-border-top);
+  box-shadow: var(--glass-z2-shadow), var(--glass-hover-glow);
 }
 .sectionHeader {
   display: flex; align-items: center; justify-content: space-between;
@@ -111,16 +129,22 @@
 .rightColumn { display: flex; flex-direction: column; gap: var(--space-md); }
 
 .breakdownCard, .assignmentsCard, .categoryCard {
-  background: rgba(17, 24, 39, 0.65); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.05); border-top: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+  background: var(--glass-z1-bg); backdrop-filter: blur(var(--glass-z1-blur)); -webkit-backdrop-filter: blur(var(--glass-z1-blur));
+  border: 1px solid var(--glass-z1-border); border-top: 1px solid var(--glass-z1-border-top);
+  box-shadow: var(--glass-z1-shadow);
   border-radius: var(--radius-lg); padding: var(--space-md);
-  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transition: all 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  animation: float-up 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
+.breakdownCard { animation-delay: 0.25s; }
+.assignmentsCard { animation-delay: 0.35s; }
+.categoryCard { animation-delay: 0.45s; }
 .breakdownCard:hover, .assignmentsCard:hover, .categoryCard:hover {
-  border-color: rgba(255, 255, 255, 0.15);
-  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.6), 0 0 20px rgba(99, 102, 241, 0.1);
-  transform: translateY(-2px) scale(1.01);
+  background: var(--glass-z2-bg);
+  backdrop-filter: blur(var(--glass-z2-blur)); -webkit-backdrop-filter: blur(var(--glass-z2-blur));
+  border-color: var(--glass-z2-border); border-top-color: var(--glass-z2-border-top);
+  box-shadow: var(--glass-z2-shadow), var(--glass-hover-glow);
+  transform: translateY(-6px) scale(1.01);
 }
 .breakdownCard h3, .assignmentsCard h3, .categoryCard h3 {
   font-size: var(--text-sm); font-weight: 700; margin-bottom: var(--space-md);
