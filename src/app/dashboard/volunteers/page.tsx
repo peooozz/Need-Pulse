@@ -1,8 +1,9 @@
 'use client';
 
 import { useState, useMemo, useCallback } from 'react';
-import { MOCK_VOLUNTEERS, MOCK_ASSIGNMENTS } from '@/lib/mock-data';
+import { MOCK_ASSIGNMENTS } from '@/lib/mock-data';
 import type { Volunteer, VolunteerAvailability } from '@/lib/types';
+import { useVolunteers } from '@/lib/hooks/useData';
 import styles from './volunteers.module.css';
 
 const AVAILABILITY_CONFIG: Record<VolunteerAvailability, { label: string; cls: string; dot: string }> = {
@@ -127,9 +128,10 @@ export default function VolunteersPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<SortKey>('rating');
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const { volunteers, loading } = useVolunteers();
 
   const vols = useMemo(() => {
-    let list = [...MOCK_VOLUNTEERS];
+    let list = [...volunteers];
 
     /* Search */
     if (searchQuery.trim()) {
