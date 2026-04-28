@@ -6,7 +6,8 @@
    ============================================ */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { processFieldReport, isGeminiConfigured } from '@/lib/gemini';
+import { analyzeProblem, isGeminiConfigured } from '@/lib/gemini';
+import type { ProblemExtraction } from '@/lib/gemini';
 import { matchVolunteers, type VolunteerMatch } from '@/lib/matching-engine';
 import { getVolunteers } from '@/lib/firebase';
 import { MOCK_VOLUNTEERS } from '@/lib/mock-data';
@@ -41,11 +42,19 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    /* Step 1: Process via Gemini AI (or smart mock fallback) */
-    const extraction = await processFieldReport(
+    /* Step 1: Process via Gemini AI (or keyword fallback) */
+    const problemResult: ProblemExtraction = await analyzeProblem(
       body.message.trim(),
-      body.mediaType || 'text'
+      'en'
     );
+
+    // Convert ProblemExtraction to GeminiExtraction for backward compat
+    const extraction: GeminiExtraction = {
+      ...problemResult,
+      peopleAffected: 0,
+      location: 'Unknown',
+      isComplete: true,
+    };
 
     /* Step 2: Get volunteers (from Firestore or mock) */
     let volunteers: Volunteer[] = await getVolunteers();
@@ -54,7 +63,7 @@ export async function POST(request: NextRequest) {
     }
 
     /* Step 3: Match volunteers */
-    const needLocation = body.location || { lat: 20.5937, lng: 78.9629 }; // Default: center of India
+    const needLocation = body.location || { lat: 20.5937, lng: 78.9629 };
     const matches = matchVolunteers(extraction, volunteers, needLocation, 3);
 
     /* Step 4: Return results */
@@ -81,13 +90,4 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
-}
-
-/* Health check */
-export async function GET() {
-  return NextResponse.json({
-    status: 'ok',
-    geminiConfigured: isGeminiConfigured(),
-    timestamp: new Date().toISOString(),
-  });
 }

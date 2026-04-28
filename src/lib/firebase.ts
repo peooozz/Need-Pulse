@@ -71,12 +71,48 @@ const COLLECTIONS = {
   whatsapp_sessions: 'whatsapp_sessions',
 } as const;
 
+/* ---------- Phase-based WhatsApp Session ---------- */
+export type ConversationPhase = 'language' | 'problem' | 'people' | 'followup' | 'location' | 'complete';
+
 export interface WhatsAppSession {
   id?: string;
   phone: string;
+  phase: ConversationPhase;
+  language: string;
+  problemDescription: string;
+  category: string;
+  subcategory: string;
+  urgency: number;
+  sentiment: string;
+  peopleAffected: number;
+  followUpQuestion: string;
+  followUpAnswer: string;
+  latitude: number | null;
+  longitude: number | null;
   messages: string[];
   isComplete: boolean;
   lastUpdated: any;
+}
+
+export function createEmptySession(phone: string): WhatsAppSession {
+  return {
+    phone,
+    phase: 'language',
+    language: '',
+    problemDescription: '',
+    category: '',
+    subcategory: '',
+    urgency: 0,
+    sentiment: '',
+    peopleAffected: 0,
+    followUpQuestion: '',
+    followUpAnswer: '',
+    latitude: null,
+    longitude: null,
+    messages: [],
+    isComplete: false,
+    lastUpdated: Timestamp.now(),
+  };
 }
 
 export async function getActiveSession(phone: string): Promise<WhatsAppSession | null> {
@@ -85,14 +121,49 @@ export async function getActiveSession(phone: string): Promise<WhatsAppSession |
     const q = query(collection(db, COLLECTIONS.whatsapp_sessions), where("phone", "==", phone));
     const snapshot = await getDocs(q);
     if (snapshot.empty) return null;
-    const doc = snapshot.docs[0];
-    return { id: doc.id, ...doc.data() } as WhatsAppSession & { id: string };
+    const d = snapshot.docs[0];
+    return { id: d.id, ...d.data() } as WhatsAppSession & { id: string };
   } catch (error) {
     console.error('Error fetching session:', error);
     return null;
   }
 }
 
+export async function saveSession(session: WhatsAppSession): Promise<string | null> {
+  if (!db) return null;
+  try {
+    if (session.id) {
+      // Update existing session
+      const { id, ...data } = session;
+      await updateDoc(doc(db, COLLECTIONS.whatsapp_sessions, id), {
+        ...data,
+        lastUpdated: Timestamp.now(),
+      });
+      return id;
+    } else {
+      // Create new session
+      const docRef = await addDoc(collection(db, COLLECTIONS.whatsapp_sessions), {
+        ...session,
+        lastUpdated: Timestamp.now(),
+      });
+      return docRef.id;
+    }
+  } catch (error) {
+    console.error('Error saving session:', error);
+    return null;
+  }
+}
+
+export async function deleteActiveSession(docId: string) {
+  if (!db) return;
+  try {
+    await deleteDoc(doc(db, COLLECTIONS.whatsapp_sessions, docId));
+  } catch (error) {
+    console.error('Error deleting session:', error);
+  }
+}
+
+// Legacy alias for backward compat
 export async function updateActiveSession(phone: string, session: Partial<WhatsAppSession> & { docId?: string }) {
   if (!db) return;
   try {
@@ -110,15 +181,6 @@ export async function updateActiveSession(phone: string, session: Partial<WhatsA
     }
   } catch (error) {
     console.error('Error updating session:', error);
-  }
-}
-
-export async function deleteActiveSession(docId: string) {
-  if (!db) return;
-  try {
-    await deleteDoc(doc(db, COLLECTIONS.whatsapp_sessions, docId));
-  } catch (error) {
-    console.error('Error deleting session:', error);
   }
 }
 

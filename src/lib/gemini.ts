@@ -1,132 +1,66 @@
 /* ============================================
    NeedPulse — Gemini AI Processing Pipeline
-   Handles text, voice, and image field reports
-   Falls back to mock extraction if API key is missing
+   Used to intelligently analyze the user's problem description
+   and extract structured emergency data.
    ============================================ */
 
-import type { GeminiExtraction, NeedCategory, Sentiment } from './types';
+import type { NeedCategory, Sentiment } from './types';
 
 /* ---------- Check if Gemini is configured ---------- */
 export function isGeminiConfigured(): boolean {
   return !!(process.env.GEMINI_API_KEY && process.env.GEMINI_API_KEY.length > 0);
 }
 
-const SYSTEM_PROMPT = `You are NeedPulse AI, a highly empathetic and efficient disaster response assistant on WhatsApp. Your job is to gather crucial field report information from users and then generate structured intelligence.
+/* ---------- Extraction result from Gemini ---------- */
+export interface ProblemExtraction {
+  category: NeedCategory;
+  subcategory: string;
+  urgency: number;
+  sentiment: Sentiment;
+  summaryEn: string;
+  summaryOriginal: string;
+  detectedLanguage: string;
+  keyDetails: string[];
+  confidence: number;
+  /** Gemini generates 1-2 smart follow-up questions relevant to this specific emergency */
+  followUpQuestions: string[];
+}
 
-You must follow this STRICT CONVERSATIONAL FLOW. If the user hasn't provided the information for a phase, set "isComplete" to false and generate a "followUpQuestion" for that specific phase. Always ask the question in the user's preferred or detected language.
+const EXTRACTION_PROMPT = `You are NeedPulse AI, a disaster response intelligence engine. Analyze the following emergency report from a WhatsApp user and extract structured data.
 
-PHASE 1: GREETING & LANGUAGE
-If the user just says "hi", "hello", "help", or it is their first message:
-- Ask them what language they prefer (e.g., English, Hindi, Telugu) and ask them to briefly describe their emergency.
-
-PHASE 2: THE PROBLEM
-If they haven't described the problem clearly:
-- Ask them what exact help is needed (medical, food, rescue, etc.) and what happened.
-
-PHASE 3: PEOPLE AFFECTED
-If they haven't mentioned how many people need help:
-- Ask them for a rough estimate of how many people are affected or injured.
-
-PHASE 4: CRITICAL DETAILS
-If the situation is a medical or shelter emergency and lacks specifics:
-- Ask 1 or 2 important follow-up questions (e.g., "Are there children or elderly?", "Is anyone bleeding?").
-
-PHASE 5: LOCATION
-If they haven't provided a location:
-- Explicitly ask them to use the WhatsApp "Share Location" feature or type out their exact address/landmark so rescue teams can find them.
-
-If ALL information is gathered, set "isComplete" to true.
+The user has already told you their language preference and described their problem. Your job is to classify and analyze.
 
 RESPOND ONLY IN VALID JSON with these exact keys:
 {
   "category": "food" | "water" | "shelter" | "medical" | "education" | "infrastructure" | "other",
-  "subcategory": "string — specific need type e.g. drinking_water, first_aid, school_supplies",
-  "urgency": number 1-10 (10 = life-threatening emergency),
-  "peopleAffected": number (estimated, be conservative),
-  "location": "string — any location mentions (village, district, landmark, city)",
-  "summaryEn": "string — one-line English summary of the need",
-  "summaryOriginal": "string — one-line summary in the original language of the report",
-  "detectedLanguage": "string — ISO 639-1 code (hi, te, ta, en, etc.)",
+  "subcategory": "string — specific need type e.g. drinking_water, first_aid, flood_rescue",
+  "urgency": number 1-10 (10 = life-threatening),
   "sentiment": "desperate" | "urgent" | "moderate" | "informational",
-  "keyDetails": ["array of specific actionable details extracted from the report"],
+  "summaryEn": "one-line English summary of the emergency",
+  "summaryOriginal": "one-line summary in user's original language",
+  "detectedLanguage": "ISO 639-1 code (hi, te, ta, en, etc.)",
+  "keyDetails": ["array of 2-4 specific actionable details"],
   "confidence": number 0.0-1.0,
-  "isComplete": boolean (true ONLY if problem, people affected, and location are ALL provided),
-  "followUpQuestion": "string — your empathetic question for the next missing phase. Empty if isComplete is true."
+  "followUpQuestions": ["1-2 important follow-up questions relevant to THIS emergency type, written in the user's language. For medical: ask about injuries/elderly/children. For flood: ask about water level/trapped people. For food: ask about babies needing formula. Make them empathetic and specific."]
 }
 
-Guidelines for urgency scoring:
-- 10: Immediate life threat
-- 8-9: Critical
-- 6-7: High
-- 4-5: Moderate
-- 1-3: Low
-- 0: Initial Greeting.
+Urgency guide: 10=Immediate life threat, 8-9=Critical, 6-7=High, 4-5=Moderate, 1-3=Low.
+Always respond with ONLY the JSON object. No markdown, no explanation.`;
 
-Always respond with ONLY the JSON object, no markdown, no explanation.`;
-
-/* ---------- Process a field report via Gemini API ---------- */
-export async function processFieldReport(
-  message: string,
-  mediaType: 'text' | 'voice' | 'image' = 'text',
-  mediaData?: { mimeType: string; data: string },
-  history?: string[]
-): Promise<GeminiExtraction> {
-  const lowerMsg = message.toLowerCase().trim();
-
-  // 1. Early interception for purely conversational greetings to save API calls
-  // Matches "hi", "hii", "hello", "helo", "hey", etc. with optional trailing punctuation
-  const greetingRegex = /^(hi+|helo+|hello+|hey+|namaste|नमस्ते|నమస్తే|help|please help|testing|test)[.!?\s]*$/i;
-  
-  if (!mediaData && (!history || history.length === 0) && greetingRegex.test(lowerMsg)) {
-    return {
-      category: 'other',
-      subcategory: 'greeting',
-      urgency: 0,
-      peopleAffected: 0,
-      location: 'Unknown',
-      summaryEn: message,
-      summaryOriginal: message,
-      detectedLanguage: 'en',
-      sentiment: 'informational',
-      keyDetails: [],
-      confidence: 1.0,
-      isComplete: false,
-      followUpQuestion: `👋 Hello! I am NeedPulse AI.\n\nPlease describe the emergency, what kind of help is needed, and your specific location so I can dispatch the right team to you.`,
-    };
-  }
-  
-  // If Gemini is not configured, return a mock extraction
+/* ---------- Analyze a problem description via Gemini ---------- */
+export async function analyzeProblem(
+  problemText: string,
+  userLanguage: string
+): Promise<ProblemExtraction> {
   if (!isGeminiConfigured()) {
-    console.log('ℹ️ Gemini API key not configured — using smart mock extraction');
-    return generateSmartMockExtraction(message);
+    console.log('ℹ️ Gemini API key not configured — using keyword extraction');
+    return keywordExtraction(problemText);
   }
 
   try {
     const apiKey = process.env.GEMINI_API_KEY!;
 
-    const mediaContext = mediaType === 'voice'
-      ? '\n[This message was transcribed from a voice note]'
-      : mediaType === 'image'
-        ? '\n[This message was accompanied by a photo of the situation]'
-        : '';
-
-    let historyContext = '';
-    if (history && history.length > 0) {
-      historyContext = `\n\nPrevious conversation history:\n${history.map((h, i) => `Message ${i+1}: ${h}`).join('\n')}`;
-    }
-
-    const userPrompt = `Field report received via WhatsApp:${mediaContext}\n\nCurrent Message: ${message ? `"${message}"` : '[Audio attached]'}${historyContext}`;
-
-    const parts: any[] = [{ text: `${SYSTEM_PROMPT}\n\n${userPrompt}` }];
-    
-    if (mediaData) {
-      parts.push({
-        inlineData: {
-          mimeType: mediaData.mimeType,
-          data: mediaData.data
-        }
-      });
-    }
+    const userPrompt = `User's preferred language: ${userLanguage}\n\nEmergency description: "${problemText}"`;
 
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
@@ -137,7 +71,7 @@ export async function processFieldReport(
           contents: [
             {
               role: 'user',
-              parts,
+              parts: [{ text: `${EXTRACTION_PROMPT}\n\n${userPrompt}` }],
             },
           ],
           generationConfig: {
@@ -154,146 +88,103 @@ export async function processFieldReport(
     if (!response.ok) {
       const errorText = await response.text();
       console.error('Gemini API error:', response.status, errorText);
-      throw new Error(`Gemini API returned ${response.status}: ${errorText}`);
+      throw new Error(`Gemini API returned ${response.status}`);
     }
 
     const data = await response.json();
-
-    // Extract the text content from Gemini's response
-    const responseText =
-      data.candidates?.[0]?.content?.parts?.[0]?.text || '';
-
-    // Parse the JSON response (strip markdown code blocks if present)
+    const responseText = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
     const cleanText = responseText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-    const extraction = JSON.parse(cleanText) as GeminiExtraction;
+    const extraction = JSON.parse(cleanText) as ProblemExtraction;
 
-    // Validate and clamp values
     return {
       category: validateCategory(extraction.category),
       subcategory: extraction.subcategory || 'general',
-      urgency: Math.max(0, Math.min(10, Math.round(extraction.urgency ?? 5))),
-      peopleAffected: Math.max(0, extraction.peopleAffected || 0),
-      location: extraction.location || 'Unknown location',
-      summaryEn: extraction.summaryEn || message.substring(0, 100),
-      summaryOriginal: extraction.summaryOriginal || message.substring(0, 100),
-      detectedLanguage: extraction.detectedLanguage || 'en',
+      urgency: Math.max(1, Math.min(10, Math.round(extraction.urgency ?? 5))),
       sentiment: validateSentiment(extraction.sentiment),
-      keyDetails: Array.isArray(extraction.keyDetails) ? extraction.keyDetails : [extraction.summaryEn || message],
-      confidence: Math.max(0, Math.min(1, extraction.confidence || 0.5)),
-      isComplete: extraction.isComplete,
-      followUpQuestion: extraction.followUpQuestion,
+      summaryEn: extraction.summaryEn || problemText.substring(0, 100),
+      summaryOriginal: extraction.summaryOriginal || problemText.substring(0, 100),
+      detectedLanguage: extraction.detectedLanguage || 'en',
+      keyDetails: Array.isArray(extraction.keyDetails) ? extraction.keyDetails : [],
+      confidence: Math.max(0, Math.min(1, extraction.confidence || 0.7)),
+      followUpQuestions: Array.isArray(extraction.followUpQuestions) ? extraction.followUpQuestions.slice(0, 2) : [],
     };
   } catch (error) {
     console.error('Gemini processing error:', error);
-    // Fallback to smart mock if API fails
-    return generateSmartMockExtraction(message);
+    return keywordExtraction(problemText);
   }
 }
 
-/* ---------- Smart Mock Extraction (keyword-based fallback) ---------- */
-function generateSmartMockExtraction(message: string): GeminiExtraction {
+/* ---------- Keyword-based fallback extraction ---------- */
+function keywordExtraction(message: string): ProblemExtraction {
   const lowerMsg = message.toLowerCase();
 
-  // Simple keyword-based classification
   let category: NeedCategory = 'other';
   let subcategory = 'general';
   let urgency = 5;
   let sentiment: Sentiment = 'moderate';
+  let followUpQuestions: string[] = [];
 
-  // Greeting/Conversational keywords
-  if (/^(hi|hello|hey|namaste|नमस्ते|నమస్తే|help|please help)$/.test(lowerMsg.trim())) {
-    return {
-      category: 'other',
-      subcategory: 'greeting',
-      urgency: 0,
-      peopleAffected: 0,
-      location: 'Unknown',
-      summaryEn: message,
-      summaryOriginal: message,
-      detectedLanguage: 'en',
-      sentiment: 'informational',
-      keyDetails: [],
-      confidence: 1.0,
-      isComplete: false,
-      followUpQuestion: `👋 Hello! I am NeedPulse AI.\n\nPlease describe the emergency, what kind of help is needed, and your specific location so I can dispatch the right team to you.`,
-    };
-  }
-
-  // Water-related keywords (including Hindi/Telugu transliteration)
   if (/water|पानी|నీరు|jal|paani|drink|well|bore|contaminated|flood/.test(lowerMsg)) {
     category = 'water';
     subcategory = 'drinking_water';
     urgency = 8;
     sentiment = 'urgent';
-  }
-  // Medical keywords
-  else if (/medic|doctor|hospital|sick|ill|disease|दवा|बीमार|health|injury|medicine|diabetes/.test(lowerMsg)) {
+    followUpQuestions = ['Is the water contaminated or is there no water at all?', 'Are there children or elderly who need water urgently?'];
+  } else if (/medic|doctor|hospital|sick|ill|disease|दवा|बीमार|health|injury|medicine/.test(lowerMsg)) {
     category = 'medical';
     subcategory = 'medical_attention';
-    urgency = 7;
+    urgency = 8;
     sentiment = 'urgent';
-  }
-  // Food keywords
-  else if (/food|hunger|rice|dal|ration|kitchen|भोजन|खाना|starving|meal|feeding/.test(lowerMsg)) {
+    followUpQuestions = ['Are there children, pregnant women, or elderly affected?', 'Is anyone critically injured or bleeding?'];
+  } else if (/food|hunger|rice|dal|ration|kitchen|भोजन|खाना|starving|meal/.test(lowerMsg)) {
     category = 'food';
     subcategory = 'food_supply';
     urgency = 7;
     sentiment = 'urgent';
-  }
-  // Shelter keywords
-  else if (/shelter|house|home|displaced|flood|roof|tent|आश्रय|मकान|collapse/.test(lowerMsg)) {
+    followUpQuestions = ['Are there infants who need baby formula or milk?', 'How long has it been since people have eaten?'];
+  } else if (/shelter|house|home|displaced|roof|tent|आश्रय|मकान|collapse/.test(lowerMsg)) {
     category = 'shelter';
     subcategory = 'emergency_housing';
     urgency = 8;
     sentiment = 'desperate';
-  }
-  // Education keywords
-  else if (/school|book|teacher|student|education|పాఠశాల|विद्यालय|textbook|class/.test(lowerMsg)) {
+    followUpQuestions = ['Are people currently exposed to rain or extreme weather?', 'Are there any injured people who cannot move?'];
+  } else if (/school|book|teacher|student|education/.test(lowerMsg)) {
     category = 'education';
     subcategory = 'school_supplies';
     urgency = 4;
     sentiment = 'moderate';
-  }
-  // Infrastructure keywords
-  else if (/road|bridge|electric|power|infrastructure|सड़क|बिजली|damaged|broken|construction/.test(lowerMsg)) {
+    followUpQuestions = ['How many students are affected?', 'What specific supplies are needed?'];
+  } else if (/road|bridge|electric|power|infrastructure|सड़क|बिजली/.test(lowerMsg)) {
     category = 'infrastructure';
     subcategory = 'road_repair';
     urgency = 6;
     sentiment = 'moderate';
+    followUpQuestions = ['Is anyone trapped or stranded due to the infrastructure damage?', 'Is this blocking access to emergency services?'];
+  } else {
+    followUpQuestions = ['Can you describe more about what happened?', 'Is anyone in immediate danger?'];
   }
 
-  // Boost urgency for desperation keywords
   if (/emergency|urgent|dying|death|immediate|critical|desperate|बहुत|जल्दी|तुरंत/.test(lowerMsg)) {
     urgency = Math.min(10, urgency + 2);
     sentiment = 'desperate';
   }
 
-  // Detect people count
-  const numberMatch = message.match(/(\d+)\s*(people|families|persons|students|patients|children|लोग|परिवार|విద్యార్థులు)/i);
-  const peopleAffected = numberMatch ? parseInt(numberMatch[1]) * (numberMatch[2].toLowerCase().includes('famil') ? 4 : 1) : 50;
-
-  // Simple language detection
   let detectedLanguage = 'en';
   if (/[\u0900-\u097F]/.test(message)) detectedLanguage = 'hi';
   else if (/[\u0C00-\u0C7F]/.test(message)) detectedLanguage = 'te';
   else if (/[\u0B80-\u0BFF]/.test(message)) detectedLanguage = 'ta';
-  else if (/[\u0980-\u09FF]/.test(message)) detectedLanguage = 'bn';
-  else if (/[\u0A80-\u0AFF]/.test(message)) detectedLanguage = 'gu';
-  else if (/[\u0C80-\u0CFF]/.test(message)) detectedLanguage = 'kn';
 
   return {
     category,
     subcategory,
     urgency,
-    peopleAffected,
-    location: 'Detected from report',
-    summaryEn: message.length > 80 ? message.substring(0, 80) + '...' : message,
-    summaryOriginal: message.length > 80 ? message.substring(0, 80) + '...' : message,
-    detectedLanguage,
     sentiment,
-    keyDetails: [`Category: ${category}`, `Estimated ${peopleAffected} people affected`],
-    confidence: 0.75,
-    isComplete: true,
+    summaryEn: message.length > 80 ? message.substring(0, 80) + '...' : message,
+    summaryOriginal: message,
+    detectedLanguage,
+    keyDetails: [`Category: ${category}`],
+    confidence: 0.65,
+    followUpQuestions,
   };
 }
 
@@ -308,3 +199,6 @@ function validateCategory(cat: string): NeedCategory {
 function validateSentiment(sent: string): Sentiment {
   return VALID_SENTIMENTS.includes(sent as Sentiment) ? (sent as Sentiment) : 'moderate';
 }
+
+// Keep backward-compat export for any other importers
+export { analyzeProblem as processFieldReport };
