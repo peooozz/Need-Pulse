@@ -11,10 +11,9 @@ export function isGeminiConfigured(): boolean {
   return !!(process.env.GEMINI_API_KEY && process.env.GEMINI_API_KEY.length > 0);
 }
 
-/* ---------- System Prompt (the secret sauce) ---------- */
 const SYSTEM_PROMPT = `You are NeedPulse AI, an expert at analyzing field reports from NGO workers in India.
 
-Given the following field report (which may be in any language), extract structured intelligence.
+Given the following field report (which may be in any language) and any previous conversation history, extract structured intelligence.
 
 RESPOND ONLY IN VALID JSON with these exact keys:
 {
@@ -28,7 +27,9 @@ RESPOND ONLY IN VALID JSON with these exact keys:
   "detectedLanguage": "string — ISO 639-1 code (hi, te, ta, en, etc.)",
   "sentiment": "desperate" | "urgent" | "moderate" | "informational",
   "keyDetails": ["array of specific actionable details extracted from the report"],
-  "confidence": number 0.0-1.0 (how confident you are in the extraction accuracy)
+  "confidence": number 0.0-1.0,
+  "isComplete": boolean (false if critical details like location or what exactly happened are missing),
+  "followUpQuestion": "string — a conversational, empathetic question asking for the missing info (e.g. 'Can you specify how many people are injured?'). Empty if isComplete is true."
 }
 
 Guidelines for urgency scoring:
@@ -37,7 +38,7 @@ Guidelines for urgency scoring:
 - 6-7: High (medicine shortage, food running out, structural damage)
 - 4-5: Moderate (educational needs, non-urgent infrastructure)
 - 1-3: Low (informational reports, minor requests)
-- 0: Conversational/Greeting (e.g., "hi", "hello", "how are you", or a general "help" with no context). For these, set category to "other" and peopleAffected to 0.
+- 0: Conversational/Greeting (e.g., "hi", "hello"). For these, set isComplete to false, and ask how you can help.
 
 Always respond with ONLY the JSON object, no markdown, no explanation.`;
 
@@ -45,7 +46,8 @@ Always respond with ONLY the JSON object, no markdown, no explanation.`;
 export async function processFieldReport(
   message: string,
   mediaType: 'text' | 'voice' | 'image' = 'text',
-  mediaData?: { mimeType: string; data: string }
+  mediaData?: { mimeType: string; data: string },
+  history?: string[]
 ): Promise<GeminiExtraction> {
   const lowerMsg = message.toLowerCase().trim();
 
@@ -53,7 +55,7 @@ export async function processFieldReport(
   // Matches "hi", "hii", "hello", "helo", "hey", etc. with optional trailing punctuation
   const greetingRegex = /^(hi+|helo+|hello+|hey+|namaste|नमस्ते|నమస్తే|help|please help|testing|test)[.!?\s]*$/i;
   
-  if (!mediaData && greetingRegex.test(lowerMsg)) {
+  if (!mediaData && (!history || history.length === 0) && greetingRegex.test(lowerMsg)) {
     return {
       category: 'other',
       subcategory: 'greeting',
@@ -66,6 +68,8 @@ export async function processFieldReport(
       sentiment: 'informational',
       keyDetails: [],
       confidence: 1.0,
+      isComplete: false,
+      followUpQuestion: `👋 Hello! I am NeedPulse AI.\n\nPlease describe the emergency, what kind of help is needed, and your specific location so I can dispatch the right team to you.`,
     };
   }
   
@@ -84,7 +88,12 @@ export async function processFieldReport(
         ? '\n[This message was accompanied by a photo of the situation]'
         : '';
 
-    const userPrompt = `Field report received via WhatsApp:${mediaContext}\n\n${message ? `"${message}"` : '[Audio attached]'}`;
+    let historyContext = '';
+    if (history && history.length > 0) {
+      historyContext = `\n\nPrevious conversation history:\n${history.map((h, i) => `Message ${i+1}: ${h}`).join('\n')}`;
+    }
+
+    const userPrompt = `Field report received via WhatsApp:${mediaContext}\n\nCurrent Message: ${message ? `"${message}"` : '[Audio attached]'}${historyContext}`;
 
     const parts: any[] = [{ text: `${SYSTEM_PROMPT}\n\n${userPrompt}` }];
     

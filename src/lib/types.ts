@@ -83,6 +83,8 @@ export interface GeminiExtraction {
   sentiment: Sentiment;
   keyDetails: string[];
   confidence: number;
+  isComplete?: boolean;
+  followUpQuestion?: string;
 }
 
 export interface ProcessingStep {

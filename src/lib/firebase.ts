@@ -12,6 +12,7 @@ import {
   where,
   Timestamp,
   Firestore,
+  deleteDoc,
 } from 'firebase/firestore';
 import {
   getAuth,
@@ -71,6 +72,7 @@ const COLLECTIONS = {
 } as const;
 
 export interface WhatsAppSession {
+  id?: string;
   phone: string;
   messages: string[];
   isComplete: boolean;
