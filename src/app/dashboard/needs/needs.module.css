@@ -44,7 +44,7 @@
 }
 .row { cursor: pointer; transition: background var(--duration-fast), box-shadow var(--duration-fast); }
 .row:hover { background: rgba(255, 255, 255, 0.03); }
-.rowExpanded { background: rgba(255, 77, 109, 0.05); }
+.rowExpanded { background: rgba(99, 102, 241, 0.05); }
 
 .urgencyCell { display: flex; align-items: center; gap: 8px; }
 .reportCell { max-width: 360px; }
