@@ -8,6 +8,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { processFieldReport, isGeminiConfigured } from '@/lib/gemini';
 import { matchVolunteers, type VolunteerMatch } from '@/lib/matching-engine';
+import { getVolunteers } from '@/lib/firebase';
 import { MOCK_VOLUNTEERS } from '@/lib/mock-data';
 import type { Volunteer, GeminiExtraction } from '@/lib/types';
 
@@ -47,8 +48,10 @@ export async function POST(request: NextRequest) {
     );
 
     /* Step 2: Get volunteers (from Firestore or mock) */
-    // TODO: Replace with Firestore query when Firebase is configured
-    const volunteers: Volunteer[] = MOCK_VOLUNTEERS;
+    let volunteers: Volunteer[] = await getVolunteers();
+    if (volunteers.length === 0) {
+      volunteers = MOCK_VOLUNTEERS;
+    }
 
     /* Step 3: Match volunteers */
     const needLocation = body.location || { lat: 20.5937, lng: 78.9629 }; // Default: center of India
