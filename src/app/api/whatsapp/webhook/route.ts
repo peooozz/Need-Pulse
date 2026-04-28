@@ -54,7 +54,12 @@ export async function POST(request: NextRequest) {
     
     // 2. Process via Gemini AI (supports direct multimodal audio and history!)
     // If it's just a location ping with no text, we can give a default string
-    const reportText = latitude && !body.trim() ? "User shared their GPS location for assistance." : body.trim();
+    let reportText = body.trim();
+    if (latitude && longitude) {
+      reportText = reportText 
+        ? `${reportText} [User attached GPS Location: Latitude ${latitude}, Longitude ${longitude}]`
+        : `[User shared their GPS location: Latitude ${latitude}, Longitude ${longitude}]`;
+    }
     const extraction = await processFieldReport(reportText, mediaType !== 'location' ? mediaType : 'text', mediaData, history);
 
     // Handle conversational / greeting messages early OR incomplete reports
