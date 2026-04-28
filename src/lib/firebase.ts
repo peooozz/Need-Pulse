@@ -67,7 +67,58 @@ const COLLECTIONS = {
   needs: 'needs',
   volunteers: 'volunteers',
   assignments: 'assignments',
+  whatsapp_sessions: 'whatsapp_sessions',
 } as const;
+
+export interface WhatsAppSession {
+  phone: string;
+  messages: string[];
+  isComplete: boolean;
+  lastUpdated: any;
+}
+
+export async function getActiveSession(phone: string): Promise<WhatsAppSession | null> {
+  if (!db) return null;
+  try {
+    const q = query(collection(db, COLLECTIONS.whatsapp_sessions), where("phone", "==", phone));
+    const snapshot = await getDocs(q);
+    if (snapshot.empty) return null;
+    const doc = snapshot.docs[0];
+    return { id: doc.id, ...doc.data() } as WhatsAppSession & { id: string };
+  } catch (error) {
+    console.error('Error fetching session:', error);
+    return null;
+  }
+}
+
+export async function updateActiveSession(phone: string, session: Partial<WhatsAppSession> & { docId?: string }) {
+  if (!db) return;
+  try {
+    if (session.docId) {
+      await updateDoc(doc(db, COLLECTIONS.whatsapp_sessions, session.docId), {
+        ...session,
+        lastUpdated: Timestamp.now(),
+      });
+    } else {
+      await addDoc(collection(db, COLLECTIONS.whatsapp_sessions), {
+        ...session,
+        phone,
+        lastUpdated: Timestamp.now(),
+      });
+    }
+  } catch (error) {
+    console.error('Error updating session:', error);
+  }
+}
+
+export async function deleteActiveSession(docId: string) {
+  if (!db) return;
+  try {
+    await deleteDoc(doc(db, COLLECTIONS.whatsapp_sessions, docId));
+  } catch (error) {
+    console.error('Error deleting session:', error);
+  }
+}
 
 /* ---------- Firestore Helper Functions ---------- */
 
