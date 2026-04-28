@@ -35,13 +35,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        background: '#0a0e1a',
+        background: '#0d0015',
         color: '#f9fafb',
         fontFamily: 'Inter, system-ui, sans-serif',
       }}>
         <div style={{ textAlign: 'center' }}>
           <div style={{ fontSize: '32px', marginBottom: '12px', animation: 'float 2s ease-in-out infinite' }}>⚡</div>
-          <p style={{ color: '#818cf8', fontSize: '14px' }}>Loading NeedPulse...</p>
+          <p style={{ color: '#ff4d6d', fontSize: '14px' }}>Loading NeedPulse...</p>
         </div>
       </div>
     );
@@ -68,8 +68,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <aside className={`${styles.sidebar} ${sidebarOpen ? styles.sidebarOpen : ''}`}>
         <div className={styles.sidebarHeader}>
           <Link href="/" className={styles.logo}>
-            <div className={styles.logoIcon}>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+            <div className={styles.logoIcon} style={{ background: 'transparent', boxShadow: 'none' }}>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M16 5 A 8 8 0 1 0 17 17" stroke="url(#logo-blue)" />
+                <line x1="21" y1="21" x2="16.65" y2="16.65" stroke="url(#logo-blue)" />
+                <path d="M3 11 h 3 l 2 -4 l 3 8 l 2 -5 l 2 2 l 4 -4" stroke="url(#logo-blue)" />
+                <polygon points="19 3 21 8 16 7" fill="url(#logo-green)" stroke="url(#logo-green)" strokeWidth="1" />
+              </svg>
             </div>
             <span className={styles.logoText}>NeedPulse</span>
           </Link>

@@ -142,7 +142,7 @@ export default function DashboardOverview() {
 
       {/* Stats Cards */}
       <div className={styles.statsGrid}>
-        <StatsCard icon="📊" label="Total Needs" value={totalNeeds.toLocaleString()} trend="↑ 12%" color="#6366f1" delay={0} />
+        <StatsCard icon="📊" label="Total Needs" value={totalNeeds.toLocaleString()} trend="↑ 12%" color="#ff4d6d" delay={0} />
         <StatsCard icon="🤝" label="Active Volunteers" value={activeVols.toString()} trend="↑ 5%" color="#10b981" delay={80} />
         <StatsCard icon="✅" label="Resolved Today" value={resolvedToday.toString()} trend="↑ 23%" color="#f59e0b" delay={160} />
         <StatsCard icon="⚡" label="Avg Response" value={`${avgResponse} min`} trend="↓ 3min" color="#3b82f6" delay={240} />

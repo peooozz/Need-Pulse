@@ -5,14 +5,16 @@ import { isFirebaseConfigured, subscribeToNeeds, subscribeToVolunteers } from '@
 import { MOCK_NEEDS, MOCK_VOLUNTEERS, MOCK_STATS } from '@/lib/mock-data';
 import type { Need, Volunteer } from '@/lib/types';
 
+let globalFirebaseError = false;
+
 export function useNeeds() {
   const [needs, setNeeds] = useState<Need[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!isFirebaseConfigured()) {
-      // Fallback to mock data if Firebase isn't configured
+    if (!isFirebaseConfigured() || globalFirebaseError) {
+      // Fallback to mock data if Firebase isn't configured or failed previously
       setNeeds(MOCK_NEEDS);
       setLoading(false);
       return;
@@ -23,6 +25,7 @@ export function useNeeds() {
       setLoading(false);
     }, (err) => {
       console.warn('Falling back to mock needs data due to subscription error:', err);
+      globalFirebaseError = true;
       setNeeds(MOCK_NEEDS);
       setLoading(false);
     });
@@ -33,7 +36,9 @@ export function useNeeds() {
     }
 
     return () => {
-      if (unsubscribe) unsubscribe();
+      if (unsubscribe) {
+        try { unsubscribe(); } catch(e) { /* ignore cleanup errors */ }
+      }
     };
   }, []);
 
@@ -46,7 +51,7 @@ export function useVolunteers() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!isFirebaseConfigured()) {
+    if (!isFirebaseConfigured() || globalFirebaseError) {
       // Fallback to mock data
       setVolunteers(MOCK_VOLUNTEERS);
       setLoading(false);
@@ -58,6 +63,7 @@ export function useVolunteers() {
       setLoading(false);
     }, (err) => {
       console.warn('Falling back to mock volunteer data due to subscription error:', err);
+      globalFirebaseError = true;
       setVolunteers(MOCK_VOLUNTEERS);
       setLoading(false);
     });
@@ -68,7 +74,9 @@ export function useVolunteers() {
     }
 
     return () => {
-      if (unsubscribe) unsubscribe();
+      if (unsubscribe) {
+        try { unsubscribe(); } catch(e) { /* ignore */ }
+      }
     };
   }, []);
 

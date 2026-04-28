@@ -129,7 +129,7 @@ export const CATEGORY_CONFIG: Record<NeedCategory, { emoji: string; label: strin
   water: { emoji: '💧', label: 'Water', color: '#3b82f6', cssClass: 'cat-water' },
   food: { emoji: '🍲', label: 'Food', color: '#f59e0b', cssClass: 'cat-food' },
   shelter: { emoji: '🏠', label: 'Shelter', color: '#8b5cf6', cssClass: 'cat-shelter' },
-  education: { emoji: '📚', label: 'Education', color: '#6366f1', cssClass: 'cat-education' },
+  education: { emoji: '📚', label: 'Education', color: '#e040fb', cssClass: 'cat-education' },
   infrastructure: { emoji: '🏗️', label: 'Infrastructure', color: '#6b7280', cssClass: 'cat-infrastructure' },
   other: { emoji: '📋', label: 'Other', color: '#9ca3af', cssClass: 'cat-other' },
 };

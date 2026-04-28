@@ -59,7 +59,7 @@ const FEATURES = [
     title: 'Heatmap Intelligence',
     description: 'Every report is geo-tagged and plotted on a live heatmap. Cluster analysis reveals patterns — so you dispatch resources where they matter most.',
     highlight: 'Real-time GPS',
-    gradient: 'linear-gradient(135deg, #3b82f6, #6366f1)',
+    gradient: 'linear-gradient(135deg, #3b82f6, #e040fb)',
   },
   {
     icon: '🚀',
@@ -85,9 +85,23 @@ export default function LandingPage() {
       <nav className={styles.nav}>
         <div className={styles.navInner}>
           <div className={styles.logo}>
-            <div className={styles.logoIcon}>
-              <span className={styles.logoPulse} />
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+            <div className={styles.logoIcon} style={{ background: 'transparent', boxShadow: 'none' }}>
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <defs>
+                  <linearGradient id="logo-blue" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#0077b6" />
+                    <stop offset="100%" stopColor="#00b4d8" />
+                  </linearGradient>
+                  <linearGradient id="logo-green" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#10b981" />
+                    <stop offset="100%" stopColor="#34d399" />
+                  </linearGradient>
+                </defs>
+                <path d="M16 5 A 8 8 0 1 0 17 17" stroke="url(#logo-blue)" />
+                <line x1="21" y1="21" x2="16.65" y2="16.65" stroke="url(#logo-blue)" />
+                <path d="M3 11 h 3 l 2 -4 l 3 8 l 2 -5 l 2 2 l 4 -4" stroke="url(#logo-blue)" />
+                <polygon points="19 3 21 8 16 7" fill="url(#logo-green)" stroke="url(#logo-green)" strokeWidth="1" />
+              </svg>
             </div>
             <span className={styles.logoText}>NeedPulse</span>
           </div>
@@ -301,8 +315,13 @@ export default function LandingPage() {
       <footer className={styles.footer}>
         <div className={styles.footerInner}>
           <div className={styles.logo}>
-            <div className={styles.logoIcon}>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+            <div className={styles.logoIcon} style={{ background: 'transparent', boxShadow: 'none' }}>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M16 5 A 8 8 0 1 0 17 17" stroke="url(#logo-blue)" />
+                <line x1="21" y1="21" x2="16.65" y2="16.65" stroke="url(#logo-blue)" />
+                <path d="M3 11 h 3 l 2 -4 l 3 8 l 2 -5 l 2 2 l 4 -4" stroke="url(#logo-blue)" />
+                <polygon points="19 3 21 8 16 7" fill="url(#logo-green)" stroke="url(#logo-green)" strokeWidth="1" />
+              </svg>
             </div>
             <span className={styles.logoText}>NeedPulse</span>
           </div>
