@@ -179,6 +179,8 @@ export async function processFieldReport(
       sentiment: validateSentiment(extraction.sentiment),
       keyDetails: Array.isArray(extraction.keyDetails) ? extraction.keyDetails : [extraction.summaryEn || message],
       confidence: Math.max(0, Math.min(1, extraction.confidence || 0.5)),
+      isComplete: extraction.isComplete,
+      followUpQuestion: extraction.followUpQuestion,
     };
   } catch (error) {
     console.error('Gemini processing error:', error);
@@ -211,6 +213,8 @@ function generateSmartMockExtraction(message: string): GeminiExtraction {
       sentiment: 'informational',
       keyDetails: [],
       confidence: 1.0,
+      isComplete: false,
+      followUpQuestion: `👋 Hello! I am NeedPulse AI.\n\nPlease describe the emergency, what kind of help is needed, and your specific location so I can dispatch the right team to you.`,
     };
   }
 
@@ -288,6 +292,7 @@ function generateSmartMockExtraction(message: string): GeminiExtraction {
     sentiment,
     keyDetails: [`Category: ${category}`, `Estimated ${peopleAffected} people affected`],
     confidence: 0.75,
+    isComplete: true,
   };
 }
 

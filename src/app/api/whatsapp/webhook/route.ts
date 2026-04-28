@@ -63,7 +63,7 @@ export async function POST(request: NextRequest) {
     const extraction = await processFieldReport(reportText, mediaType !== 'location' ? mediaType : 'text', mediaData, history);
 
     // Handle conversational / greeting messages early OR incomplete reports
-    if (extraction.isComplete === false || (extraction.urgency === 0 && !latitude)) {
+    if (!extraction.isComplete || (extraction.urgency === 0 && !latitude)) {
       const responseMsg = extraction.followUpQuestion || `👋 Hello! I am NeedPulse AI.\n\nPlease describe the emergency, what kind of help is needed, and your specific location so I can dispatch the right team to you.`;
       
       // Update session state
