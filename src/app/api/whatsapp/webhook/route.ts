@@ -21,13 +21,17 @@ export async function POST(request: NextRequest) {
     const numMedia = parseInt(formData.get('NumMedia') as string || '0', 10);
     const mediaUrl = formData.get('MediaUrl0') as string;
     const mediaContentType = formData.get('MediaContentType0') as string;
+    
+    // Check if the user attached a WhatsApp Location
+    const latitude = formData.get('Latitude') as string;
+    const longitude = formData.get('Longitude') as string;
 
-    if (body.trim().length === 0 && numMedia === 0) {
+    if (body.trim().length === 0 && numMedia === 0 && !latitude) {
       return generateTwiMLResponse("Error: Received an empty message.");
     }
 
     let mediaData: { mimeType: string; data: string } | undefined = undefined;
-    let mediaType: 'text' | 'voice' | 'image' = 'text';
+    let mediaType: 'text' | 'voice' | 'image' | 'location' = latitude ? 'location' : 'text';
 
     // Fetch and encode Twilio Media if it's a voice note
     if (numMedia > 0 && mediaUrl && mediaContentType && mediaContentType.startsWith('audio/')) {
@@ -45,10 +49,12 @@ export async function POST(request: NextRequest) {
     }
 
     // 2. Process via Gemini AI (supports direct multimodal audio!)
-    const extraction = await processFieldReport(body.trim(), mediaType, mediaData);
+    // If it's just a location ping with no text, we can give a default string
+    const reportText = latitude && !body.trim() ? "User shared their GPS location for assistance." : body.trim();
+    const extraction = await processFieldReport(reportText, mediaType !== 'location' ? mediaType : 'text', mediaData);
 
     // Handle conversational / greeting messages early
-    if (extraction.urgency === 0) {
+    if (extraction.urgency === 0 && !latitude) {
       const greetingMessage = `👋 Hello! I am NeedPulse AI.\n\nPlease describe the emergency, what kind of help is needed, and your specific location so I can dispatch the right team to you.`;
       return generateTwiMLResponse(greetingMessage);
     }
@@ -58,7 +64,12 @@ export async function POST(request: NextRequest) {
     if (volunteers.length === 0) {
       volunteers = MOCK_VOLUNTEERS;
     }
-    const needLocation = { lat: 20.5937, lng: 78.9629 }; // Default: center of India
+    
+    // Use user's real GPS if provided, else default
+    const needLocation = latitude && longitude 
+      ? { lat: parseFloat(latitude), lng: parseFloat(longitude) }
+      : { lat: 20.5937, lng: 78.9629 };
+      
     const matches = matchVolunteers(extraction, volunteers, needLocation, 3);
 
     // 4. Construct human-readable response message
@@ -66,6 +77,10 @@ export async function POST(request: NextRequest) {
     responseText += `*Category:* ${extraction.category.toUpperCase()}\n`;
     responseText += `*Urgency:* ${extraction.urgency}/10\n`;
     responseText += `*Summary:* ${extraction.summaryEn}\n\n`;
+
+    if (latitude && longitude) {
+      responseText += `📍 *Location Received:* https://www.google.com/maps?q=${latitude},${longitude}\n\n`;
+    }
 
     if (matches.length > 0) {
       responseText += `✅ *Matched Volunteers:*\n`;
