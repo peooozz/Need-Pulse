@@ -287,13 +287,24 @@ export function subscribeToAssignments(
   }
 }
 
+/** Convert Firestore Timestamp fields to ISO strings */
+function normalizeNeed(id: string, data: any): Need {
+  return {
+    ...data,
+    id,
+    createdAt: data.createdAt?.toDate?.() ? data.createdAt.toDate().toISOString() : (data.createdAt || new Date().toISOString()),
+    updatedAt: data.updatedAt?.toDate?.() ? data.updatedAt.toDate().toISOString() : (data.updatedAt || new Date().toISOString()),
+  } as Need;
+}
+
 /** Get all needs (ordered by creation time) */
 export async function getNeeds(): Promise<Need[]> {
   if (!db) return [];
   try {
-    const q = query(collection(db, COLLECTIONS.needs), orderBy('createdAt', 'desc'));
-    const snapshot = await getDocs(q);
-    return snapshot.docs.map(d => ({ id: d.id, ...d.data() } as Need));
+    const snapshot = await getDocs(collection(db, COLLECTIONS.needs));
+    let needs = snapshot.docs.map(d => normalizeNeed(d.id, d.data()));
+    needs.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    return needs;
   } catch (error) {
     console.error('Error fetching needs:', error);
     return [];
@@ -316,16 +327,16 @@ export async function getAvailableVolunteers(): Promise<Volunteer[]> {
   }
 }
 
-/** Subscribe to real-time need updates */
+/** Subscribe to real-time need updates (sorts in memory — no composite index needed) */
 export function subscribeToNeeds(
   callback: (needs: Need[]) => void,
   onError?: (error: Error) => void
 ): (() => void) | null {
   if (!db) return null;
   try {
-    const q = query(collection(db, COLLECTIONS.needs), orderBy('createdAt', 'desc'));
-    return onSnapshot(q, (snapshot) => {
-      const needs = snapshot.docs.map(d => ({ id: d.id, ...d.data() } as Need));
+    return onSnapshot(collection(db, COLLECTIONS.needs), (snapshot) => {
+      let needs = snapshot.docs.map(d => normalizeNeed(d.id, d.data()));
+      needs.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
       callback(needs);
     }, (error) => {
       console.error('Needs snapshot error:', error);

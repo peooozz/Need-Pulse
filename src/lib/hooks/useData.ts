@@ -5,32 +5,34 @@ import { isFirebaseConfigured, subscribeToNeeds, subscribeToVolunteers } from '@
 import { MOCK_NEEDS, MOCK_VOLUNTEERS, MOCK_STATS } from '@/lib/mock-data';
 import type { Need, Volunteer } from '@/lib/types';
 
-let globalFirebaseError = false;
-
 export function useNeeds() {
   const [needs, setNeeds] = useState<Need[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!isFirebaseConfigured() || globalFirebaseError) {
-      // Fallback to mock data if Firebase isn't configured or failed previously
+    if (!isFirebaseConfigured()) {
       setNeeds(MOCK_NEEDS);
       setLoading(false);
       return;
     }
 
     const unsubscribe = subscribeToNeeds((data) => {
-      setNeeds(data);
+      // Merge Firebase data with mock data if Firebase returns empty
+      if (data.length === 0) {
+        setNeeds(MOCK_NEEDS);
+      } else {
+        setNeeds(data);
+      }
       setLoading(false);
     }, (err) => {
-      console.warn('Falling back to mock needs data due to subscription error:', err);
-      globalFirebaseError = true;
+      console.warn('Firebase needs subscription error, using mock data:', err.message);
       setNeeds(MOCK_NEEDS);
       setLoading(false);
     });
 
     if (!unsubscribe) {
+      setNeeds(MOCK_NEEDS);
       setError('Failed to subscribe to needs data.');
       setLoading(false);
     }
@@ -51,24 +53,27 @@ export function useVolunteers() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!isFirebaseConfigured() || globalFirebaseError) {
-      // Fallback to mock data
+    if (!isFirebaseConfigured()) {
       setVolunteers(MOCK_VOLUNTEERS);
       setLoading(false);
       return;
     }
 
     const unsubscribe = subscribeToVolunteers((data) => {
-      setVolunteers(data);
+      if (data.length === 0) {
+        setVolunteers(MOCK_VOLUNTEERS);
+      } else {
+        setVolunteers(data);
+      }
       setLoading(false);
     }, (err) => {
-      console.warn('Falling back to mock volunteer data due to subscription error:', err);
-      globalFirebaseError = true;
+      console.warn('Firebase volunteers subscription error, using mock data:', err.message);
       setVolunteers(MOCK_VOLUNTEERS);
       setLoading(false);
     });
 
     if (!unsubscribe) {
+      setVolunteers(MOCK_VOLUNTEERS);
       setError('Failed to subscribe to volunteers data.');
       setLoading(false);
     }
