@@ -120,16 +120,21 @@
 }
 .sendBtn:hover:not(:disabled) { background: #075E54; }
 
-.voiceBtn {
-  width: 38px; height: 38px; border-radius: var(--radius-full);
-  background: var(--glass-z2-bg); border: 1px solid var(--border-subtle);
+.waInputIcon {
+  width: 24px; height: 24px; border: none; background: transparent;
+  color: #858a8d; cursor: pointer; transition: color 0.2s;
   display: flex; align-items: center; justify-content: center;
-  color: var(--text-secondary); transition: all 0.3s ease; flex-shrink: 0;
-  cursor: pointer;
 }
-.voiceBtn:hover:not(:disabled) { background: rgba(0, 119, 182, 0.1); color: var(--accent-primary); transform: scale(1.1); }
+.waInputIcon:hover { color: #51585c; }
+
+.voiceBtn {
+  width: 24px; height: 24px; border: none; background: transparent;
+  color: #858a8d; cursor: pointer; transition: color 0.2s;
+  display: flex; align-items: center; justify-content: center;
+}
+.voiceBtn:hover:not(:disabled) { color: #51585c; }
 .voiceBtn.recording {
-  background: rgba(239, 68, 68, 0.1); color: #ef4444; border-color: #ef4444;
+  color: #ef4444;
   animation: pulse-red 1.5s infinite;
 }
 
