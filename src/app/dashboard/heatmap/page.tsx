@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { MOCK_NEEDS } from '@/lib/mock-data';
+import { useNeeds } from '@/lib/hooks/useData';
 import { CATEGORY_CONFIG, URGENCY_CONFIG } from '@/lib/types';
 import type { Need, NeedCategory } from '@/lib/types';
 import styles from './heatmap.module.css';
@@ -22,16 +22,28 @@ function timeAgo(dateStr: string): string {
 // Removed MapDot as we are using Leaflet now
 
 export default function HeatmapPage() {
+  const { needs, loading } = useNeeds();
   const [filterCategory, setFilterCategory] = useState<NeedCategory | 'all'>('all');
   const [filterUrgency, setFilterUrgency] = useState<'all' | 'critical' | 'high' | 'moderate' | 'low'>('all');
   const [selectedNeed, setSelectedNeed] = useState<Need | null>(null);
 
   const filtered = useMemo(() => {
-    let list = [...MOCK_NEEDS];
+    let list = [...needs];
     if (filterCategory !== 'all') list = list.filter(n => n.category === filterCategory);
     if (filterUrgency !== 'all') list = list.filter(n => URGENCY_CONFIG.getLevel(n.urgency) === filterUrgency);
     return list;
-  }, [filterCategory, filterUrgency]);
+  }, [needs, filterCategory, filterUrgency]);
+
+  if (loading) {
+    return (
+      <div className={styles.heatmapPage}>
+        <div className={styles.topBar}>
+          <h1 className={styles.title}>🗺️ Need Heatmap</h1>
+        </div>
+        <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center', height: '60vh', color: 'var(--text-muted)'}}>Loading map data...</div>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.heatmapPage}>
@@ -39,13 +51,13 @@ export default function HeatmapPage() {
       <div className={styles.topBar}>
         <h1 className={styles.title}>🗺️ Need Heatmap</h1>
         <div className={styles.filters}>
-          <select value={filterCategory} onChange={e => setFilterCategory(e.target.value as NeedCategory | 'all')}>
+          <select className="glass-select" value={filterCategory} onChange={e => setFilterCategory(e.target.value as NeedCategory | 'all')}>
             <option value="all">All Categories</option>
             {Object.entries(CATEGORY_CONFIG).map(([k, v]) => (
               <option key={k} value={k}>{v.emoji} {v.label}</option>
             ))}
           </select>
-          <select value={filterUrgency} onChange={e => setFilterUrgency(e.target.value as typeof filterUrgency)}>
+          <select className="glass-select" value={filterUrgency} onChange={e => setFilterUrgency(e.target.value as typeof filterUrgency)}>
             <option value="all">All Urgency</option>
             <option value="critical">🔴 Critical (8-10)</option>
             <option value="high">🟠 High (6-7)</option>

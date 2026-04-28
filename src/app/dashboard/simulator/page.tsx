@@ -4,7 +4,8 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import { MOCK_VOLUNTEERS, DEMO_SCENARIOS } from '@/lib/mock-data';
 import { CATEGORY_CONFIG, URGENCY_CONFIG } from '@/lib/types';
 import { matchVolunteers, type VolunteerMatch } from '@/lib/matching-engine';
-import { createNeed } from '@/lib/firebase';
+import { addNeed } from '@/lib/firebase';
+import type { NeedStatus } from '@/lib/types';
 import type { ChatMessage, GeminiExtraction, ProcessingStep, DemoScenario } from '@/lib/types';
 import type { ProcessResponse } from '@/app/api/process/route';
 import styles from './simulator.module.css';
@@ -371,11 +372,11 @@ export default function SimulatorPage() {
         mediaUrls: [],
         reporterPhone: '+91****0000',
         reporterName: 'Field Worker',
-        status: (matches.length > 0 ? 'assigned' : 'new') as any,
+        status: (matches.length > 0 ? 'assigned' : 'new') as NeedStatus,
         assignedVolunteerId: matches.length > 0 ? matches[0].volunteer.id : null,
         aiConfidence: extraction.confidence,
       };
-      await createNeed(needToSave);
+      await addNeed(needToSave);
     }
 
     // Add system confirmation reply

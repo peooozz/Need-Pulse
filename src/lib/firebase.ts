@@ -12,7 +12,6 @@ import {
   where,
   Timestamp,
   Firestore,
-  serverTimestamp,
 } from 'firebase/firestore';
 import {
   getAuth,
@@ -197,33 +196,15 @@ export function subscribeToVolunteers(
   }
 }
 
-/** Create a new need */
-export async function createNeed(needData: Partial<Need>): Promise<string | null> {
-  if (!db) return null;
+/** Get all volunteers */
+export async function getVolunteers(): Promise<Volunteer[]> {
+  if (!db) return [];
   try {
-    const docRef = await addDoc(collection(db, COLLECTIONS.needs), {
-      ...needData,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    });
-    return docRef.id;
+    const q = query(collection(db, COLLECTIONS.volunteers));
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(d => ({ id: d.id, ...d.data() } as Volunteer));
   } catch (error) {
-    console.error('Error creating need:', error);
-    return null;
-  }
-}
-
-/** Create a new assignment */
-export async function createAssignment(assignmentData: any): Promise<string | null> {
-  if (!db) return null;
-  try {
-    const docRef = await addDoc(collection(db, 'assignments'), {
-      ...assignmentData,
-      createdAt: new Date().toISOString()
-    });
-    return docRef.id;
-  } catch (error) {
-    console.error('Error creating assignment:', error);
-    return null;
+    console.error('Error fetching volunteers:', error);
+    return [];
   }
 }

@@ -110,7 +110,7 @@ export default function DashboardOverview() {
   const clock = useLiveClock();
   const { needs, loading: needsLoading } = useNeeds();
   const { volunteers, loading: volsLoading } = useVolunteers();
-  const { stats, loading: statsLoading } = useStats();
+  const { stats, loading: statsLoading } = useStats(needs, volunteers);
 
   const recentAssignments = MOCK_ASSIGNMENTS.slice(0, 3);
 
