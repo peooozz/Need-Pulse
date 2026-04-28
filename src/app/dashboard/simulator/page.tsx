@@ -412,7 +412,7 @@ export default function SimulatorPage() {
     
     setMessages(prev => [...prev, {
       id: generateId(), type: 'outgoing',
-      content: `✅ Report received!\n\n📋 Details:\n• Category: ${cat.emoji} ${cat.label}\n• Urgency: ${extraction.urgency}/10\n• Exact Location: ${nearbyLoc}\n• Nearby Area: ${locationName || 'Detecting...'}\n• Est. Dispatch Time: ${dispatchTime}\n• 🗺️ Map: ${mapsLink}\n\n${matches.length > 0 ? `🚀 Volunteer ${matches[0].volunteer.name} from ${matches[0].volunteer.organization || 'our network'} is mobilizing and en route.` : '🔄 Finding nearest available volunteer...'}\n\nThank you 🙏`,
+      content: `✅ Report received!\n\n📋 Details:\n• Category: ${cat.emoji} ${cat.label}\n• Urgency: ${extraction.urgency}/10\n• Exact Location: ${nearbyLoc}\n• Est. Dispatch Time: ${dispatchTime}\n• 🗺️ Map: ${mapsLink}\n\n${matches.length > 0 ? `🚀 Volunteer ${matches[0].volunteer.name} from ${matches[0].volunteer.organization || 'our network'} is mobilizing and en route.` : '🔄 Finding nearest available volunteer...'}\n\nThank you 🙏`,
       timestamp: formatTime(new Date()),
     }]);
 
