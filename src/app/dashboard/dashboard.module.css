@@ -20,14 +20,15 @@
 }
 
 /* Logo */
-.sidebarLogo { display: flex; align-items: center; gap: 10px; padding: 0 var(--space-sm); margin-bottom: var(--space-lg); }
+.sidebarLogo { display: flex; align-items: center; padding: 0 var(--space-sm); margin-bottom: var(--space-lg); }
+.logo { display: flex; align-items: center; gap: 10px; text-decoration: none; color: inherit; }
 .logoIcon {
-  width: 32px; height: 32px;
+  width: 36px; height: 36px;
   display: flex; align-items: center; justify-content: center;
   background: linear-gradient(135deg, #0077b6, #00b4d8);
   border-radius: var(--radius-sm); color: white;
 }
-.logoText { font-size: var(--text-lg); font-weight: 800; letter-spacing: -0.02em; }
+.logoText { font-size: var(--text-lg); font-weight: 800; letter-spacing: -0.02em; background: linear-gradient(135deg, #0077b6, #00b4d8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
 
 /* Nav Items */
 .navList { display: flex; flex-direction: column; gap: 4px; flex: 1; }
@@ -54,12 +55,17 @@
 .navItemActive .navIcon { color: var(--accent-primary); }
 .navIcon { font-size: 18px; width: 20px; text-align: center; flex-shrink: 0; }
 .navLabel { flex: 1; }
+.navGroup { display: flex; flex-direction: column; gap: 4px; }
+.navGroupLabel { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-tertiary); padding: 0 14px; margin-bottom: 4px; }
 .navBadge {
   margin-left: auto; padding: 2px 8px; border-radius: var(--radius-full);
   background: linear-gradient(135deg, #0077b6, #ff758f);
   color: white; font-size: 9px; font-weight: 700;
   animation: glow-pulse 3s ease-in-out infinite;
 }
+
+/* Sidebar Footer */
+.sidebarFooter { margin-top: auto; display: flex; align-items: center; gap: 8px; }
 
 /* User Section */
 .userSection {
@@ -111,6 +117,17 @@
 .breadcrumbActive { color: var(--text-primary); font-weight: 600; }
 
 .topBarRight { display: flex; align-items: center; gap: var(--space-md); }
+.searchBox {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 14px; border-radius: var(--radius-md);
+  background: var(--glass-z1-bg); border: 1px solid var(--border-subtle);
+  color: var(--text-secondary); min-width: 240px;
+}
+.searchBox input {
+  background: transparent; border: none; outline: none;
+  color: var(--text-primary); font-size: var(--text-sm); width: 100%;
+}
+.searchBox input::placeholder { color: var(--text-tertiary); }
 .topBarIcon {
   width: 36px; height: 36px; border-radius: var(--radius-md);
   display: flex; align-items: center; justify-content: center;
