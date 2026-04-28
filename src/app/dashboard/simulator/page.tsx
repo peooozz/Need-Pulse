@@ -324,7 +324,30 @@ export default function SimulatorPage() {
       matches = matchVolunteers(extraction, MOCK_VOLUNTEERS, scenario?.location || { lat: 20.5937, lng: 78.9629 }, 3);
     }
 
-    // Complete step 5 & 6 with real results
+    // Handle Conversational / Greeting Messages
+    if (extraction.urgency === 0) {
+      steps[4].detail = `→ Conversational`;
+      steps[5].detail = `Score: 0/10`;
+      steps[6].status = 'completed';
+      steps[6].detail = `Greeting detected`;
+      steps[7].status = 'completed';
+      steps[7].detail = `N/A`;
+      setProcessingSteps([...steps]);
+
+      setUsedRealAI(wasRealAI);
+      setProcessingTimeMs(timeMs);
+      
+      setMessages(prev => [...prev, {
+        id: generateId(), type: 'outgoing',
+        content: `👋 Hello! I am NeedPulse AI. Please describe the situation, what kind of help is needed, and any specific location details so I can dispatch the right team to you.`,
+        timestamp: formatTime(new Date()),
+      }]);
+
+      setIsProcessing(false);
+      return;
+    }
+
+    // Complete step 5 & 6 with real results for emergencies
     steps[4].detail = `→ ${CATEGORY_CONFIG[extraction.category].label}`;
     steps[5].detail = `Score: ${extraction.urgency}/10`;
     setProcessingSteps([...steps]);

@@ -9,24 +9,55 @@ import { NextRequest, NextResponse } from 'next/server';
 import { processFieldReport, isGeminiConfigured } from '@/lib/gemini';
 import { matchVolunteers } from '@/lib/matching-engine';
 import { MOCK_VOLUNTEERS } from '@/lib/mock-data';
-import type { Volunteer } from '@/lib/types';
+import { addNeed, getVolunteers } from '@/lib/firebase';
+import type { Volunteer, NeedStatus } from '@/lib/types';
 
 export async function POST(request: NextRequest) {
   try {
     // 1. Twilio sends data as form-urlencoded
     const formData = await request.formData();
-    const body = formData.get('Body') as string;
-    const from = formData.get('From') as string;
+    const body = formData.get('Body') as string || '';
+    const fromPhone = formData.get('From') as string || 'Unknown';
+    const numMedia = parseInt(formData.get('NumMedia') as string || '0', 10);
+    const mediaUrl = formData.get('MediaUrl0') as string;
+    const mediaContentType = formData.get('MediaContentType0') as string;
 
-    if (!body || body.trim().length === 0) {
+    if (body.trim().length === 0 && numMedia === 0) {
       return generateTwiMLResponse("Error: Received an empty message.");
     }
 
-    // 2. Process via Gemini AI
-    const extraction = await processFieldReport(body.trim(), 'text');
+    let mediaData: { mimeType: string; data: string } | undefined = undefined;
+    let mediaType: 'text' | 'voice' | 'image' = 'text';
 
-    // 3. Match volunteers (using mock data for now)
-    const volunteers: Volunteer[] = MOCK_VOLUNTEERS;
+    // Fetch and encode Twilio Media if it's a voice note
+    if (numMedia > 0 && mediaUrl && mediaContentType && mediaContentType.startsWith('audio/')) {
+      mediaType = 'voice';
+      try {
+        const audioRes = await fetch(mediaUrl);
+        if (audioRes.ok) {
+          const buffer = await audioRes.arrayBuffer();
+          const base64Audio = Buffer.from(buffer).toString('base64');
+          mediaData = { mimeType: mediaContentType, data: base64Audio };
+        }
+      } catch (err) {
+        console.error('Failed to fetch audio from Twilio:', err);
+      }
+    }
+
+    // 2. Process via Gemini AI (supports direct multimodal audio!)
+    const extraction = await processFieldReport(body.trim(), mediaType, mediaData);
+
+    // Handle conversational / greeting messages early
+    if (extraction.urgency === 0) {
+      const greetingMessage = `👋 Hello! I am NeedPulse AI.\n\nPlease describe the emergency, what kind of help is needed, and your specific location so I can dispatch the right team to you.`;
+      return generateTwiMLResponse(greetingMessage);
+    }
+
+    // 3. Match volunteers (using real data, fallback to mock)
+    let volunteers: Volunteer[] = await getVolunteers();
+    if (volunteers.length === 0) {
+      volunteers = MOCK_VOLUNTEERS;
+    }
     const needLocation = { lat: 20.5937, lng: 78.9629 }; // Default: center of India
     const matches = matchVolunteers(extraction, volunteers, needLocation, 3);
 
@@ -45,7 +76,34 @@ export async function POST(request: NextRequest) {
       responseText += `⚠️ *No volunteers matched at this time.*`;
     }
 
-    // 5. Return TwiML XML Response
+    // 5. Sync to Firebase Dashboard
+    const needToSave = {
+      rawMessage: body.trim() || '[Audio Report]',
+      rawLanguage: extraction.detectedLanguage || 'en',
+      translatedMessage: extraction.summaryEn,
+      category: extraction.category,
+      subcategory: extraction.subcategory || 'general',
+      urgency: extraction.urgency,
+      sentiment: extraction.sentiment || 'urgent',
+      peopleAffected: extraction.peopleAffected || 0,
+      location: needLocation,
+      locationName: extraction.location || 'Unknown Location',
+      mediaUrls: mediaUrl ? [mediaUrl] : [],
+      reporterPhone: fromPhone,
+      reporterName: 'WhatsApp Reporter',
+      status: (matches.length > 0 ? 'assigned' : 'new') as NeedStatus,
+      assignedVolunteerId: matches.length > 0 ? matches[0].volunteer.id : null,
+      aiConfidence: extraction.confidence || 0.8,
+    };
+    
+    try {
+      await addNeed(needToSave);
+      console.log('✅ Real WhatsApp Report Synced to Dashboard!');
+    } catch (dbErr) {
+      console.error('Failed to sync to dashboard:', dbErr);
+    }
+
+    // 6. Return TwiML XML Response
     return generateTwiMLResponse(responseText);
 
   } catch (error) {

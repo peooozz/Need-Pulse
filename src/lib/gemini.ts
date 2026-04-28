@@ -37,14 +37,38 @@ Guidelines for urgency scoring:
 - 6-7: High (medicine shortage, food running out, structural damage)
 - 4-5: Moderate (educational needs, non-urgent infrastructure)
 - 1-3: Low (informational reports, minor requests)
+- 0: Conversational/Greeting (e.g., "hi", "hello", "how are you", or a general "help" with no context). For these, set category to "other" and peopleAffected to 0.
 
 Always respond with ONLY the JSON object, no markdown, no explanation.`;
 
 /* ---------- Process a field report via Gemini API ---------- */
 export async function processFieldReport(
   message: string,
-  mediaType: 'text' | 'voice' | 'image' = 'text'
+  mediaType: 'text' | 'voice' | 'image' = 'text',
+  mediaData?: { mimeType: string; data: string }
 ): Promise<GeminiExtraction> {
+  const lowerMsg = message.toLowerCase().trim();
+
+  // 1. Early interception for purely conversational greetings to save API calls
+  // Matches "hi", "hii", "hello", "helo", "hey", etc. with optional trailing punctuation
+  const greetingRegex = /^(hi+|helo+|hello+|hey+|namaste|नमस्ते|నమస్తే|help|please help|testing|test)[.!?\s]*$/i;
+  
+  if (!mediaData && greetingRegex.test(lowerMsg)) {
+    return {
+      category: 'other',
+      subcategory: 'greeting',
+      urgency: 0,
+      peopleAffected: 0,
+      location: 'Unknown',
+      summaryEn: message,
+      summaryOriginal: message,
+      detectedLanguage: 'en',
+      sentiment: 'informational',
+      keyDetails: [],
+      confidence: 1.0,
+    };
+  }
+  
   // If Gemini is not configured, return a mock extraction
   if (!isGeminiConfigured()) {
     console.log('ℹ️ Gemini API key not configured — using smart mock extraction');
@@ -60,7 +84,18 @@ export async function processFieldReport(
         ? '\n[This message was accompanied by a photo of the situation]'
         : '';
 
-    const userPrompt = `Field report received via WhatsApp:${mediaContext}\n\n"${message}"`;
+    const userPrompt = `Field report received via WhatsApp:${mediaContext}\n\n${message ? `"${message}"` : '[Audio attached]'}`;
+
+    const parts: any[] = [{ text: `${SYSTEM_PROMPT}\n\n${userPrompt}` }];
+    
+    if (mediaData) {
+      parts.push({
+        inlineData: {
+          mimeType: mediaData.mimeType,
+          data: mediaData.data
+        }
+      });
+    }
 
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
@@ -71,7 +106,7 @@ export async function processFieldReport(
           contents: [
             {
               role: 'user',
-              parts: [{ text: `${SYSTEM_PROMPT}\n\n${userPrompt}` }],
+              parts,
             },
           ],
           generationConfig: {
@@ -104,8 +139,8 @@ export async function processFieldReport(
     return {
       category: validateCategory(extraction.category),
       subcategory: extraction.subcategory || 'general',
-      urgency: Math.max(1, Math.min(10, Math.round(extraction.urgency || 5))),
-      peopleAffected: Math.max(1, extraction.peopleAffected || 1),
+      urgency: Math.max(0, Math.min(10, Math.round(extraction.urgency ?? 5))),
+      peopleAffected: Math.max(0, extraction.peopleAffected || 0),
       location: extraction.location || 'Unknown location',
       summaryEn: extraction.summaryEn || message.substring(0, 100),
       summaryOriginal: extraction.summaryOriginal || message.substring(0, 100),
@@ -130,6 +165,23 @@ function generateSmartMockExtraction(message: string): GeminiExtraction {
   let subcategory = 'general';
   let urgency = 5;
   let sentiment: Sentiment = 'moderate';
+
+  // Greeting/Conversational keywords
+  if (/^(hi|hello|hey|namaste|नमस्ते|నమస్తే|help|please help)$/.test(lowerMsg.trim())) {
+    return {
+      category: 'other',
+      subcategory: 'greeting',
+      urgency: 0,
+      peopleAffected: 0,
+      location: 'Unknown',
+      summaryEn: message,
+      summaryOriginal: message,
+      detectedLanguage: 'en',
+      sentiment: 'informational',
+      keyDetails: [],
+      confidence: 1.0,
+    };
+  }
 
   // Water-related keywords (including Hindi/Telugu transliteration)
   if (/water|पानी|నీరు|jal|paani|drink|well|bore|contaminated|flood/.test(lowerMsg)) {
