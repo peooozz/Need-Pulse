@@ -69,14 +69,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <aside className={`${styles.sidebar} ${sidebarOpen ? styles.sidebarOpen : ''}`}>
         <div className={styles.sidebarLogo}>
           <Link href="/" className={styles.logo}>
-            <div className={styles.logoIcon} style={{ background: 'transparent', boxShadow: 'none' }}>
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M16 5 A 8 8 0 1 0 17 17" stroke="url(#logo-blue)" />
-                <line x1="21" y1="21" x2="16.65" y2="16.65" stroke="url(#logo-blue)" />
-                <path d="M3 11 h 3 l 2 -4 l 3 8 l 2 -5 l 2 2 l 4 -4" stroke="url(#logo-blue)" />
-                <polygon points="19 3 21 8 16 7" fill="url(#logo-green)" stroke="url(#logo-green)" strokeWidth="1" />
-              </svg>
-            </div>
+            <img 
+              src="/nano_banana.png" 
+              alt="NeedPulse Logo" 
+              style={{ width: 36, height: 36, borderRadius: '8px', objectFit: 'cover' }} 
+            />
             <span className={styles.logoText}>NeedPulse</span>
           </Link>
         </div>
