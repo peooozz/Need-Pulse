@@ -32,7 +32,9 @@ export default function LoginPage() {
       <div className={styles.authCard}>
         {/* Brand */}
         <div className={styles.brandSection}>
-          <div className={styles.brandLogo}>⚡</div>
+          <div className={styles.brandIcon}>
+            <img src="/logo.png" alt="NeedPulse Logo" style={{ width: '40px', height: '40px', objectFit: 'contain' }} />
+          </div>
           <h1 className={styles.brandName}>NeedPulse</h1>
           <p className={styles.brandTagline}>Community Intelligence Platform</p>
         </div>

@@ -533,7 +533,9 @@ export default function SimulatorPage() {
         {/* WhatsApp Chat */}
         <div className={styles.chatPane}>
           <div className={styles.waHeader}>
-            <div className={styles.waHeaderAvatar}>NP</div>
+            <div className={styles.waHeaderAvatar}>
+              <img src="/logo.png" alt="NP" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'contain' }} />
+            </div>
             <div>
               <div className={styles.waHeaderName}>NeedPulse Bot</div>
               <div className={styles.waHeaderStatus}>online</div>
