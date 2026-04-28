@@ -220,6 +220,7 @@ export default function SimulatorPage() {
   const [usedRealAI, setUsedRealAI] = useState(false);
   const [processingTimeMs, setProcessingTimeMs] = useState<number | null>(null);
   const [apiStatus, setApiStatus] = useState<'checking' | 'real' | 'mock'>('checking');
+  const [isRecording, setIsRecording] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = useCallback(() => {
@@ -381,9 +382,14 @@ export default function SimulatorPage() {
 
     // Add system confirmation reply
     const cat = CATEGORY_CONFIG[extraction.category];
+    const dispatchTime = new Date(Date.now() + 15 * 60000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const nearbyLoc = extraction.location || scenario?.locationName || 'your reported area';
+    const finalLoc = location || scenario?.location || { lat: 20.5937, lng: 78.9629 };
+    const mapsLink = `https://www.google.com/maps?q=${finalLoc.lat},${finalLoc.lng}`;
+    
     setMessages(prev => [...prev, {
       id: generateId(), type: 'outgoing',
-      content: `✅ Report received! Category: ${cat.emoji} ${cat.label}\nUrgency: ${extraction.urgency}/10\n${matches.length > 0 ? `Volunteer ${matches[0].volunteer.name} dispatched to your area.` : 'Finding available volunteer...'}\n\nThank you 🙏`,
+      content: `✅ Report received!\n\n📋 Details:\n• Category: ${cat.emoji} ${cat.label}\n• Urgency: ${extraction.urgency}/10\n• Exact Location: ${nearbyLoc}\n• Nearby Area: ${locationName || 'Detecting...'}\n• Est. Dispatch Time: ${dispatchTime}\n• 🗺️ Map: ${mapsLink}\n\n${matches.length > 0 ? `🚀 Volunteer ${matches[0].volunteer.name} from ${matches[0].volunteer.organization || 'our network'} is mobilizing and en route.` : '🔄 Finding nearest available volunteer...'}\n\nThank you 🙏`,
       timestamp: formatTime(new Date()),
     }]);
 
@@ -404,20 +410,74 @@ export default function SimulatorPage() {
   }, [processMessage]);
 
   /* Send custom message — now calls real AI! */
-  const sendMessage = useCallback(() => {
-    if (!inputText.trim() || isProcessing) return;
-    const text = inputText.trim();
-    setInputText('');
+  const sendMessage = useCallback((overrideText?: string, isVoice: boolean = false) => {
+    const text = overrideText || inputText.trim();
+    if (!text || isProcessing) return;
+    if (!overrideText) setInputText('');
 
     setMessages(prev => [...prev, {
       id: generateId(), type: 'incoming',
-      content: text, timestamp: formatTime(new Date()),
-      senderName: 'Field Worker', mediaType: 'text',
+      content: isVoice ? `🎤 [Voice Note]: ${text}` : text, timestamp: formatTime(new Date()),
+      senderName: 'Field Worker', mediaType: isVoice ? 'voice' : 'text',
     }]);
 
-    // Process via real API (no scenario fallback — true AI processing)
-    processMessage(text, 'text', null);
+    // Attempt to get real location before sending to AI
+    if ('geolocation' in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const loc = { lat: position.coords.latitude, lng: position.coords.longitude };
+          processMessage(text, isVoice ? 'voice' : 'text', null, loc);
+        },
+        (error) => {
+          console.warn('Geolocation failed or denied, using fallback location', error);
+          processMessage(text, isVoice ? 'voice' : 'text', null);
+        },
+        { timeout: 5000 }
+      );
+    } else {
+      processMessage(text, isVoice ? 'voice' : 'text', null);
+    }
   }, [inputText, isProcessing, processMessage]);
+
+  const toggleRecording = useCallback(() => {
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      alert("Voice recognition is not supported in this browser. Please use Chrome or Edge.");
+      return;
+    }
+
+    if (isRecording) {
+      // It will stop automatically on SpeechRecognition.stop() or when it stops hearing
+      setIsRecording(false);
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'en-US';
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+
+    recognition.onstart = () => setIsRecording(true);
+    
+    recognition.onresult = (event: any) => {
+      const speechResult = event.results[0][0].transcript;
+      sendMessage(speechResult, true);
+    };
+    
+    recognition.onerror = (event: any) => {
+      console.error('Speech recognition error', event.error);
+      setIsRecording(false);
+    };
+    
+    recognition.onend = () => setIsRecording(false);
+
+    try {
+      recognition.start();
+    } catch (e) {
+      console.error(e);
+      setIsRecording(false);
+    }
+  }, [isRecording, sendMessage]);
 
   return (
     <div className={styles.simulator}>
@@ -477,15 +537,23 @@ export default function SimulatorPage() {
           </div>
 
           <div className={styles.chatInput}>
+            <button 
+              className={`${styles.voiceBtn} ${isRecording ? styles.recording : ''}`} 
+              onClick={toggleRecording} 
+              disabled={isProcessing}
+              title="Record Voice Note"
+            >
+              {isRecording ? '🔴' : '🎤'}
+            </button>
             <input
               type="text"
-              placeholder="Type a message in any language..."
+              placeholder={isRecording ? "Listening..." : "Type a message in any language..."}
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
-              disabled={isProcessing}
+              disabled={isProcessing || isRecording}
             />
-            <button className={styles.sendBtn} onClick={sendMessage} disabled={isProcessing}>
+            <button className={styles.sendBtn} onClick={() => sendMessage()} disabled={isProcessing}>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
             </button>
           </div>

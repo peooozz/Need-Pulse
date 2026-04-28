@@ -9,7 +9,7 @@ import dynamic from 'next/dynamic';
 
 const LeafletMap = dynamic(() => import('@/components/map/LeafletMap'), {
   ssr: false,
-  loading: () => <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', background: '#09090b', borderRadius: '1rem', color: 'var(--text-muted)'}}>Loading map...</div>
+  loading: () => <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', background: 'var(--glass-z1-bg)', borderRadius: '1rem', color: 'var(--text-tertiary)'}}>Loading map...</div>
 });
 
 function timeAgo(dateStr: string): string {

@@ -153,11 +153,13 @@ export function subscribeToAssignments(
   try {
     const q = query(
       collection(db, COLLECTIONS.assignments),
-      where('volunteerId', '==', volunteerId),
-      orderBy('dispatchedAt', 'desc')
+      where('volunteerId', '==', volunteerId)
     );
     return onSnapshot(q, (snapshot) => {
-      const assignments = snapshot.docs.map(d => ({ id: d.id, ...d.data() } as Assignment));
+      // Sort in memory instead of requiring a Firestore composite index
+      let assignments = snapshot.docs.map(d => ({ id: d.id, ...d.data() } as Assignment));
+      assignments.sort((a, b) => new Date(b.dispatchedAt).getTime() - new Date(a.dispatchedAt).getTime());
+      
       callback(assignments);
     }, (error) => {
       console.error('Assignments snapshot error:', error);

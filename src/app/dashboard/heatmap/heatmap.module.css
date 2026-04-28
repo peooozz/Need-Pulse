@@ -1,24 +1,31 @@
-/* Heatmap — Pink Glassmorphism */
+/* Heatmap — Medical Blue & Growth Green Theme */
 
-.heatmapPage { display: flex; flex-direction: column; gap: var(--space-lg); height: calc(100vh - var(--header-height) - var(--space-lg) * 2); }
-.heatmapHeader { display: flex; align-items: center; justify-content: space-between; }
-.heatmapTitle { font-size: var(--text-2xl); font-weight: 800; }
+.heatmapPage { display: flex; flex-direction: column; gap: var(--space-md); height: calc(100vh - var(--header-height) - var(--space-lg) * 2); }
+
+.topBar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
+.title { font-size: var(--text-2xl); font-weight: 800; letter-spacing: -0.02em; }
+
+.filters { display: flex; gap: 12px; }
+
+.mapLayout {
+  display: flex; gap: var(--space-md); flex: 1; overflow: hidden; position: relative;
+}
 
 .mapContainer {
   flex: 1; border-radius: var(--radius-lg); overflow: hidden;
-  background: var(--glass-z2-bg);
-  backdrop-filter: blur(var(--glass-z2-blur)); -webkit-backdrop-filter: blur(var(--glass-z2-blur));
-  border: 1px solid var(--glass-z2-border);
-  box-shadow: var(--glass-z2-shadow), 0 0 60px rgba(0, 119, 182, 0.06);
-  position: relative;
+  background: var(--glass-z1-bg);
+  backdrop-filter: blur(var(--glass-z1-blur)); -webkit-backdrop-filter: blur(var(--glass-z1-blur));
+  border: 1px solid var(--glass-z1-border);
+  box-shadow: var(--glass-z1-shadow);
+  position: relative; min-height: 400px;
 }
 .mapContainer:hover {
-  box-shadow: var(--glass-z2-shadow), 0 0 80px rgba(0, 119, 182, 0.1);
+  box-shadow: var(--glass-z2-shadow);
 }
 .mapContainer::before {
   content: ''; position: absolute; inset: 0; z-index: 0;
   background:
-    linear-gradient(180deg, rgba(13, 0, 21, 0.8) 0%, transparent 20%, transparent 80%, rgba(13, 0, 21, 0.6) 100%),
+    linear-gradient(180deg, rgba(0, 119, 182, 0.05) 0%, transparent 20%, transparent 80%, rgba(16, 185, 129, 0.02) 100%),
     radial-gradient(ellipse at 30% 50%, rgba(0, 119, 182, 0.06) 0%, transparent 50%);
   pointer-events: none;
 }
@@ -30,25 +37,63 @@
   background-size: 60px 60px; pointer-events: none;
 }
 
-.mapLegend {
-  position: absolute; bottom: var(--space-md); left: var(--space-md); z-index: 10;
+.legend {
+  position: absolute; bottom: var(--space-md); left: var(--space-md); z-index: 400;
   background: var(--glass-z2-bg);
   backdrop-filter: blur(var(--glass-z2-blur)); -webkit-backdrop-filter: blur(var(--glass-z2-blur));
-  border: 1px solid var(--glass-z2-border); border-radius: var(--radius-lg);
-  padding: var(--space-md); min-width: 200px;
+  border: 1px solid var(--glass-z2-border); border-radius: var(--radius-md);
+  padding: var(--space-sm) var(--space-md); min-width: 150px;
   box-shadow: var(--glass-z2-shadow);
 }
-.mapLegend h4 { font-size: var(--text-xs); font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 10px; }
-.legendItem { display: flex; align-items: center; gap: 8px; font-size: var(--text-xs); padding: 4px 0; }
+.legendTitle { font-size: var(--text-xs); font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
+.legendItems { display: flex; flex-direction: column; gap: 4px; }
+.legendItem { display: flex; align-items: center; gap: 8px; font-size: var(--text-xs); font-weight: 500; }
 .legendDot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
 
-.loadingOverlay {
-  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
-  background: rgba(13, 0, 21, 0.8); backdrop-filter: blur(8px);
-  z-index: 20;
+/* Detail Panel */
+.detailPanel {
+  width: 380px; border-radius: var(--radius-lg); overflow-y: auto;
+  background: var(--glass-z2-bg);
+  backdrop-filter: blur(var(--glass-z2-blur)); -webkit-backdrop-filter: blur(var(--glass-z2-blur));
+  border: 1px solid var(--glass-z2-border); border-top: 1px solid var(--glass-z2-border-top);
+  box-shadow: var(--glass-z2-shadow);
+  display: flex; flex-direction: column; animation: slideIn 0.3s ease; flex-shrink: 0;
 }
-.loadingSpinner {
-  width: 40px; height: 40px; border: 3px solid rgba(0, 119, 182, 0.15);
-  border-top-color: var(--accent-primary); border-radius: 50%;
-  animation: spin 1s linear infinite;
+
+.detailHeader {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: var(--space-md); border-bottom: 1px solid var(--border-subtle);
+  background: linear-gradient(135deg, rgba(0, 119, 182, 0.1), transparent);
+}
+.detailHeader h3 { font-size: var(--text-md); font-weight: 700; color: var(--text-primary); }
+.closeBtn {
+  width: 28px; height: 28px; border-radius: 50%; border: none;
+  background: var(--bg-tertiary); color: var(--text-secondary);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: all 0.2s; font-size: 14px;
+}
+.closeBtn:hover { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
+
+.detailContent { padding: var(--space-md); display: flex; flex-direction: column; gap: var(--space-md); }
+
+.detailUrgency {
+  display: flex; align-items: center; gap: 12px;
+  padding: var(--space-sm) var(--space-md); border-radius: var(--radius-md);
+  background: var(--glass-z1-bg); border: 1px solid var(--border-subtle);
+}
+
+.detailField { display: flex; flex-direction: column; gap: 4px; }
+.detailLabel { font-size: 10px; font-weight: 700; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.05em; }
+.detailText { font-size: var(--text-sm); line-height: 1.5; color: var(--text-secondary); background: rgba(0,0,0,0.02); padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border-subtle); }
+.detailRow { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.detailMono { font-family: var(--font-mono); font-size: var(--text-sm); font-weight: 600; color: var(--accent-primary); }
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@media (max-width: 1024px) {
+  .mapLayout { flex-direction: column; }
+  .detailPanel { width: 100%; max-height: 300px; }
 }
