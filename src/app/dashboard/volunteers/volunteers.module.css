@@ -68,10 +68,10 @@
 .cardHeader { display: flex; align-items: center; gap: 12px; cursor: pointer; }
 .avatar {
   width: 44px; height: 44px; border-radius: var(--radius-full);
-  background: linear-gradient(135deg, var(--accent-primary), #ff758f);
+  background: linear-gradient(135deg, var(--accent-primary), #818cf8);
   display: flex; align-items: center; justify-content: center;
   font-size: var(--text-xs); font-weight: 700; color: white; flex-shrink: 0;
-  box-shadow: 0 4px 12px rgba(255, 77, 109, 0.2);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
 }
 .cardInfo { flex: 1; min-width: 0; }
 .cardName { font-size: var(--text-base); font-weight: 700; }

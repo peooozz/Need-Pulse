@@ -35,13 +35,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        background: '#fff0f3',
-        color: '#590d22',
+        background: '#0a0e1a',
+        color: '#f9fafb',
         fontFamily: 'Inter, system-ui, sans-serif',
       }}>
         <div style={{ textAlign: 'center' }}>
           <div style={{ fontSize: '32px', marginBottom: '12px', animation: 'float 2s ease-in-out infinite' }}>⚡</div>
-          <p style={{ color: '#800f2f', fontSize: '14px' }}>Loading NeedPulse...</p>
+          <p style={{ color: '#818cf8', fontSize: '14px' }}>Loading NeedPulse...</p>
         </div>
       </div>
     );

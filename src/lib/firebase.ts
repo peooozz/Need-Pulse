@@ -72,7 +72,7 @@ const COLLECTIONS = {
 /* ---------- Firestore Helper Functions ---------- */
 
 /** Add a new need to Firestore */
-export async function addNeed(need: Omit<Need, 'id'>): Promise<string | null> {
+export async function addNeed(need: Omit<Need, 'id' | 'createdAt' | 'updatedAt'>): Promise<string | null> {
   if (!db) return null;
   try {
     const docRef = await addDoc(collection(db, COLLECTIONS.needs), {
