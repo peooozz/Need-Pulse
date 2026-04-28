@@ -11,9 +11,9 @@
   color: var(--text-secondary); font-size: var(--text-xs); font-weight: 500;
   cursor: pointer; transition: all 0.3s ease; backdrop-filter: blur(8px);
 }
-.filterBtn:hover { border-color: rgba(255, 77, 109, 0.3); color: var(--text-primary); }
+.filterBtn:hover { border-color: rgba(0, 119, 182, 0.3); color: var(--text-primary); }
 .filterBtnActive {
-  background: rgba(255, 77, 109, 0.15); border-color: rgba(255, 77, 109, 0.3);
+  background: rgba(0, 119, 182, 0.15); border-color: rgba(0, 119, 182, 0.3);
   color: var(--accent-primary);
 }
 
@@ -35,17 +35,17 @@
   transform: translateY(-6px) scale(1.01);
 }
 .cardExpanded {
-  border-color: rgba(255, 77, 109, 0.25);
-  box-shadow: var(--glass-z2-shadow), 0 0 30px rgba(255, 77, 109, 0.08);
+  border-color: rgba(0, 119, 182, 0.25);
+  box-shadow: var(--glass-z2-shadow), 0 0 30px rgba(0, 119, 182, 0.08);
 }
 
 .cardHeader { display: flex; align-items: center; gap: 12px; cursor: pointer; }
 .avatar {
   width: 44px; height: 44px; border-radius: var(--radius-full);
-  background: linear-gradient(135deg, #ff4d6d, #ff8fa3);
+  background: linear-gradient(135deg, #0077b6, #00b4d8);
   display: flex; align-items: center; justify-content: center;
   font-size: var(--text-xs); font-weight: 700; color: white; flex-shrink: 0;
-  box-shadow: 0 4px 12px rgba(255, 77, 109, 0.25);
+  box-shadow: 0 4px 12px rgba(0, 119, 182, 0.25);
 }
 .cardInfo { flex: 1; min-width: 0; }
 .cardName { font-size: var(--text-base); font-weight: 700; }
@@ -55,7 +55,7 @@
 .skillTags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
 .skillTag {
   padding: 3px 10px; border-radius: var(--radius-full);
-  background: rgba(255, 77, 109, 0.08); border: 1px solid rgba(255, 77, 109, 0.12);
+  background: rgba(0, 119, 182, 0.08); border: 1px solid rgba(0, 119, 182, 0.12);
   font-size: 10px; font-weight: 600; color: var(--accent-secondary); text-transform: capitalize;
 }
 

@@ -59,7 +59,7 @@ const FEATURES = [
     title: 'Heatmap Intelligence',
     description: 'Every report is geo-tagged and plotted on a live heatmap. Cluster analysis reveals patterns — so you dispatch resources where they matter most.',
     highlight: 'Real-time GPS',
-    gradient: 'linear-gradient(135deg, #3b82f6, #e040fb)',
+    gradient: 'linear-gradient(135deg, #3b82f6, #10b981)',
   },
   {
     icon: '🚀',

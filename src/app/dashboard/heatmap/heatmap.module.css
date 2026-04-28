@@ -9,24 +9,24 @@
   background: var(--glass-z2-bg);
   backdrop-filter: blur(var(--glass-z2-blur)); -webkit-backdrop-filter: blur(var(--glass-z2-blur));
   border: 1px solid var(--glass-z2-border);
-  box-shadow: var(--glass-z2-shadow), 0 0 60px rgba(255, 77, 109, 0.06);
+  box-shadow: var(--glass-z2-shadow), 0 0 60px rgba(0, 119, 182, 0.06);
   position: relative;
 }
 .mapContainer:hover {
-  box-shadow: var(--glass-z2-shadow), 0 0 80px rgba(255, 77, 109, 0.1);
+  box-shadow: var(--glass-z2-shadow), 0 0 80px rgba(0, 119, 182, 0.1);
 }
 .mapContainer::before {
   content: ''; position: absolute; inset: 0; z-index: 0;
   background:
     linear-gradient(180deg, rgba(13, 0, 21, 0.8) 0%, transparent 20%, transparent 80%, rgba(13, 0, 21, 0.6) 100%),
-    radial-gradient(ellipse at 30% 50%, rgba(255, 77, 109, 0.06) 0%, transparent 50%);
+    radial-gradient(ellipse at 30% 50%, rgba(0, 119, 182, 0.06) 0%, transparent 50%);
   pointer-events: none;
 }
 .mapContainer::after {
   content: ''; position: absolute; inset: 0; z-index: 0;
   background-image:
-    linear-gradient(rgba(255, 77, 109, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 77, 109, 0.03) 1px, transparent 1px);
+    linear-gradient(rgba(0, 119, 182, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 119, 182, 0.03) 1px, transparent 1px);
   background-size: 60px 60px; pointer-events: none;
 }
 
@@ -48,7 +48,7 @@
   z-index: 20;
 }
 .loadingSpinner {
-  width: 40px; height: 40px; border: 3px solid rgba(255, 77, 109, 0.15);
+  width: 40px; height: 40px; border: 3px solid rgba(0, 119, 182, 0.15);
   border-top-color: var(--accent-primary); border-radius: 50%;
   animation: spin 1s linear infinite;
 }

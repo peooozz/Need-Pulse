@@ -13,11 +13,11 @@
   background: var(--glass-z2-bg);
   backdrop-filter: blur(var(--glass-z2-blur)); -webkit-backdrop-filter: blur(var(--glass-z2-blur));
   border-bottom: 1px solid var(--glass-z2-border);
-  box-shadow: 0 4px 20px rgba(255, 77, 109, 0.05);
+  box-shadow: 0 4px 20px rgba(0, 119, 182, 0.05);
 }
 .nav::after {
   content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255, 77, 109, 0.2), rgba(224, 64, 251, 0.15), transparent);
+  background: linear-gradient(90deg, transparent, rgba(0, 119, 182, 0.2), rgba(224, 64, 251, 0.15), transparent);
 }
 .navInner {
   max-width: var(--max-content); margin: 0 auto;
@@ -27,14 +27,14 @@
 .logo { display: flex; align-items: center; gap: 10px; }
 .logoIcon {
   width: 36px; height: 36px; border-radius: var(--radius-sm);
-  background: linear-gradient(135deg, #ff4d6d, #ff8fa3);
+  background: linear-gradient(135deg, #0077b6, #00b4d8);
   display: flex; align-items: center; justify-content: center; color: white;
-  box-shadow: 0 0 20px rgba(255, 77, 109, 0.3);
+  box-shadow: 0 0 20px rgba(0, 119, 182, 0.3);
   position: relative;
 }
 .logoPulse {
   position: absolute; inset: -3px; border-radius: var(--radius-sm);
-  border: 2px solid rgba(255, 77, 109, 0.4);
+  border: 2px solid rgba(0, 119, 182, 0.4);
   animation: pulse-ring 2.5s ease-out infinite;
 }
 .logoText { font-size: var(--text-xl); font-weight: 800; letter-spacing: -0.02em; color: var(--text-primary); }
@@ -51,8 +51,8 @@
   transition: all 0.3s ease;
 }
 .navLoginBtn:hover {
-  border-color: rgba(255, 77, 109, 0.4); color: var(--accent-primary) !important;
-  background: rgba(255, 77, 109, 0.08);
+  border-color: rgba(0, 119, 182, 0.4); color: var(--accent-primary) !important;
+  background: rgba(0, 119, 182, 0.08);
 }
 
 /* Hero */
@@ -66,14 +66,14 @@
   filter: blur(120px); opacity: 0.5;
 }
 .heroGlow:nth-child(1) {
-  top: 10%; left: 15%; background: rgba(255, 77, 109, 0.12);
+  top: 10%; left: 15%; background: rgba(0, 119, 182, 0.12);
   animation: ambient-drift 18s ease-in-out infinite;
 }
 .heroGrid {
   position: absolute; inset: 0;
   background-image:
-    linear-gradient(rgba(255, 77, 109, 0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 77, 109, 0.05) 1px, transparent 1px);
+    linear-gradient(rgba(0, 119, 182, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 119, 182, 0.05) 1px, transparent 1px);
   background-size: 80px 80px; opacity: 0.5;
 }
 .heroContent { position: relative; z-index: 1; max-width: 800px; }
@@ -84,7 +84,7 @@
 .heroBadge {
   display: inline-flex; align-items: center; gap: 8px;
   padding: 6px 16px; border-radius: var(--radius-full);
-  background: rgba(255, 77, 109, 0.1); border: 1px solid rgba(255, 77, 109, 0.2);
+  background: rgba(0, 119, 182, 0.1); border: 1px solid rgba(0, 119, 182, 0.2);
   font-size: var(--text-xs); font-weight: 600; color: var(--accent-primary);
   margin-bottom: var(--space-lg);
   animation: fade-in-up 0.6s var(--ease-out) both;
@@ -123,7 +123,7 @@
 }
 .globeCircle {
   width: 100%; height: 100%; border-radius: 50%; border: 2px solid var(--accent-primary);
-  background: radial-gradient(circle at 35% 35%, rgba(255, 77, 109, 0.2), transparent);
+  background: radial-gradient(circle at 35% 35%, rgba(0, 119, 182, 0.2), transparent);
   position: relative;
 }
 
@@ -145,8 +145,8 @@
 }
 .featureCard:hover {
   transform: translateY(-12px) scale(1.02);
-  box-shadow: var(--shadow-xl), 0 0 60px rgba(255, 77, 109, 0.1);
-  border-color: rgba(255, 77, 109, 0.3);
+  box-shadow: var(--shadow-xl), 0 0 60px rgba(0, 119, 182, 0.1);
+  border-color: rgba(0, 119, 182, 0.3);
 }
 .featureIcon {
   width: 64px; height: 64px; border-radius: var(--radius-lg);
@@ -160,7 +160,7 @@
   display: inline-flex; align-items: center; gap: 6px;
   margin-top: var(--space-md); padding: 6px 14px;
   border-radius: var(--radius-full);
-  background: rgba(255, 77, 109, 0.05); border: 1px solid rgba(255, 77, 109, 0.15);
+  background: rgba(0, 119, 182, 0.05); border: 1px solid rgba(0, 119, 182, 0.15);
   font-size: var(--text-xs); font-weight: 700; color: var(--accent-primary);
 }
 
@@ -179,7 +179,7 @@
   color: white; display: flex; align-items: center; justify-content: center; 
   font-weight: 800; font-size: var(--text-lg); 
   position: absolute; top: -24px; left: 50%; transform: translateX(-50%);
-  box-shadow: 0 4px 16px rgba(255, 77, 109, 0.4); border: 3px solid white;
+  box-shadow: 0 4px 16px rgba(0, 119, 182, 0.4); border: 3px solid white;
 }
 .stepIcon { font-size: 40px; margin-bottom: var(--space-sm); }
 .step h3 { font-size: var(--text-lg); font-weight: 700; color: var(--text-primary); margin-bottom: 8px; }
@@ -197,7 +197,7 @@
 .statCard:hover { transform: translateY(-5px); box-shadow: var(--shadow-lg); }
 .statNumber {
   font-family: var(--font-mono); font-size: var(--text-5xl); font-weight: 900;
-  background: linear-gradient(135deg, #ff4d6d, #ff8fa3);
+  background: linear-gradient(135deg, #0077b6, #00b4d8);
   -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
 }
 .statLabel { font-size: var(--text-sm); color: var(--text-secondary); margin-top: 8px; font-weight: 600; }
@@ -212,10 +212,10 @@
   border: 1px solid var(--glass-z2-border); box-shadow: var(--shadow-xl); 
   text-align: center; position: relative;
 }
-.quoteIcon { font-size: 64px; color: rgba(255, 77, 109, 0.15); margin-bottom: -10px; font-family: serif; line-height: 1; }
+.quoteIcon { font-size: 64px; color: rgba(0, 119, 182, 0.15); margin-bottom: -10px; font-family: serif; line-height: 1; }
 .quoteText { font-size: var(--text-2xl); font-weight: 500; font-style: italic; line-height: 1.6; color: var(--text-primary); margin-bottom: var(--space-lg); }
 .quoteAuthor { display: flex; align-items: center; justify-content: center; gap: 16px; text-align: left; }
-.quoteAvatar { width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, #ff4d6d, #e040fb); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: var(--text-lg); box-shadow: var(--shadow-md); }
+.quoteAvatar { width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, #0077b6, #10b981); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: var(--text-lg); box-shadow: var(--shadow-md); }
 .quoteName { font-weight: 700; color: var(--text-primary); }
 .quoteRole { font-size: var(--text-sm); color: var(--text-secondary); }
 
@@ -234,7 +234,7 @@
 
 /* CTA */
 .ctaSection { padding: var(--space-4xl) var(--space-lg); text-align: center; position: relative; overflow: hidden; }
-.ctaGlow { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 800px; height: 800px; background: radial-gradient(circle, rgba(255, 77, 109, 0.15), transparent 70%); z-index: -1; pointer-events: none; }
+.ctaGlow { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 800px; height: 800px; background: radial-gradient(circle, rgba(0, 119, 182, 0.15), transparent 70%); z-index: -1; pointer-events: none; }
 .ctaSection h2 { font-size: var(--text-5xl); font-weight: 900; color: var(--text-primary); margin-bottom: var(--space-md); }
 .ctaSection p { font-size: var(--text-xl); color: var(--text-secondary); margin-bottom: var(--space-xl); max-width: 600px; margin-left: auto; margin-right: auto; }
 .ctaButtons { display: flex; justify-content: center; gap: var(--space-md); }

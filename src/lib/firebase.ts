@@ -123,6 +123,53 @@ export async function addAssignment(assignment: Omit<Assignment, 'id'>): Promise
   }
 }
 
+/** Update assignment status */
+export async function updateAssignmentStatus(
+  assignmentId: string,
+  status: Assignment['status'],
+  additionalData?: Partial<Assignment>
+): Promise<boolean> {
+  if (!db) return false;
+  try {
+    const ref = doc(db, COLLECTIONS.assignments, assignmentId);
+    await updateDoc(ref, {
+      status,
+      ...additionalData
+    });
+    return true;
+  } catch (error) {
+    console.error('Error updating assignment:', error);
+    return false;
+  }
+}
+
+/** Subscribe to assignments for a specific volunteer */
+export function subscribeToAssignments(
+  volunteerId: string,
+  callback: (assignments: Assignment[]) => void,
+  onError?: (error: Error) => void
+): (() => void) | null {
+  if (!db) return null;
+  try {
+    const q = query(
+      collection(db, COLLECTIONS.assignments),
+      where('volunteerId', '==', volunteerId),
+      orderBy('dispatchedAt', 'desc')
+    );
+    return onSnapshot(q, (snapshot) => {
+      const assignments = snapshot.docs.map(d => ({ id: d.id, ...d.data() } as Assignment));
+      callback(assignments);
+    }, (error) => {
+      console.error('Assignments snapshot error:', error);
+      if (onError) onError(error);
+    });
+  } catch (error) {
+    console.error('Error subscribing to assignments:', error);
+    if (onError && error instanceof Error) onError(error);
+    return null;
+  }
+}
+
 /** Get all needs (ordered by creation time) */
 export async function getNeeds(): Promise<Need[]> {
   if (!db) return [];

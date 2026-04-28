@@ -13,7 +13,7 @@ const AVAILABILITY_CONFIG: Record<VolunteerAvailability, { label: string; cls: s
 };
 
 const SKILL_COLORS: Record<string, string> = {
-  medical: '#ef4444', teaching: '#ff4d6d', construction: '#f59e0b',
+  medical: '#ef4444', teaching: '#0077b6', construction: '#f59e0b',
   cooking: '#f97316', driving: '#3b82f6', logistics: '#10b981',
   sanitation: '#06b6d4', counseling: '#8b5cf6',
 };

@@ -11,6 +11,7 @@ const NAV_ITEMS = [
   { href: '/dashboard/heatmap', label: 'Need Heatmap', icon: '🗺️' },
   { href: '/dashboard/needs', label: 'Needs', icon: '📋' },
   { href: '/dashboard/volunteers', label: 'Volunteers', icon: '🤝' },
+  { href: '/dashboard/my-requests', label: 'My Requests', icon: '📬' },
   { href: '/dashboard/simulator', label: 'Simulator', icon: '⚡', highlight: true },
 ];
 
@@ -41,7 +42,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       }}>
         <div style={{ textAlign: 'center' }}>
           <div style={{ fontSize: '32px', marginBottom: '12px', animation: 'float 2s ease-in-out infinite' }}>⚡</div>
-          <p style={{ color: '#ff4d6d', fontSize: '14px' }}>Loading NeedPulse...</p>
+          <p style={{ color: '#0077b6', fontSize: '14px' }}>Loading NeedPulse...</p>
         </div>
       </div>
     );

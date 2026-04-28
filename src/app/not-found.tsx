@@ -23,7 +23,7 @@ export default function NotFound() {
           marginTop: '16px',
           padding: '12px 24px',
           borderRadius: '12px',
-          background: 'linear-gradient(135deg, #ff4d6d, #c9184a)',
+          background: 'linear-gradient(135deg, #0077b6, #023e8a)',
           color: 'white',
           fontWeight: 700,
           textDecoration: 'none',
