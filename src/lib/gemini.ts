@@ -163,8 +163,9 @@ export async function processFieldReport(
     const responseText =
       data.candidates?.[0]?.content?.parts?.[0]?.text || '';
 
-    // Parse the JSON response
-    const extraction = JSON.parse(responseText) as GeminiExtraction;
+    // Parse the JSON response (strip markdown code blocks if present)
+    const cleanText = responseText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+    const extraction = JSON.parse(cleanText) as GeminiExtraction;
 
     // Validate and clamp values
     return {
